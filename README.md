@@ -1,6 +1,6 @@
 # Introduction to Robotics (2023 - 2024)
 
-This repository contains laboratory homeworks for the Introduction to Robotics course taken at Faculty of Mathematics and Computer Science (1st semester, 3rd year).
+This repository contains laboratory homeworks for the Introduction to Robotics course taken at Faculty of Mathematics and Computer Science, University of Bucharest (1st semester, 3rd year).
 
 The objective of the course is to learn program a microcontroller and interface it with with hardware inputs and outputs in order to create functional 
 
