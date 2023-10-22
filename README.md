@@ -8,7 +8,9 @@ The microcontroller used for the homeworks is an [Arduino Uno R3](https://docs.a
 
 Each homework includes all the code and schematics used in solving the homework, as well as code documentation and pictures and videos showcasing the final result.
 
-[TOC]
+## Contents
+
+- [Homework 1: RGB LED](#homework-1-rgb-led)
 
 ## Homework 1: RGB LED
 
