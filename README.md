@@ -52,5 +52,3 @@ Because the value readings were flickering quite a bit, I've used the average re
 **Video demo**
 
 [https://www.youtube.com/watch?v=vWhn9H-_sig](https://www.youtube.com/watch?v=vWhn9H-_sig)
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/vWhn9H-_sig?si=iUxamJgZzPYvIZyy" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
