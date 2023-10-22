@@ -1,3 +1,25 @@
+/*
+  Homework01
+
+  This program implements the task requirements of homework 01.
+  It reads input values from 3 potentiometers and outputs the LED intensities for the Red,
+  Green and Blue pins of a RGB LED.
+
+  The circuit:
+  * 3 potentiometers attached to analog inputs A0 (for red input), A1 (for green input),
+    A2 (for blue input)
+  * the 3 pins of the RGB LED attached to digital PWM pins: 3 (for red output), 5 (for
+    green output) and 6 (for blue output)
+
+  Created 22 Oct 2023
+  By Tudor Butufei
+  Modified 23 Oct 2023
+  By Tudor Butufei
+
+  https://github.com/i2002/IntroductionToRobotics/blob/main/src/homework01/homework01.ino
+*/
+
+
 // Pin definitions
 const int inputRedPin = A0;
 const int inputGreenPin = A1;
@@ -13,16 +35,6 @@ const int maxOutputVal = 255;
 // Timing definitions
 const int measurementDelay = 10;
 const int measurementsAvgNr = 20;
-
-
-// Print values for debug
-void printValues(int redValue, int greenValue, int blueValue) {
-  Serial.print(redValue);
-  Serial.print(" ");
-  Serial.print(greenValue);
-  Serial.print(" ");
-  Serial.println(blueValue);
-}
 
 
 // Setup function
@@ -64,4 +76,13 @@ void loop() {
 
   // debug print
   //printValues(redValue, greenValue, blueValue);
+}
+
+// Print values for debug
+void printValues(int redValue, int greenValue, int blueValue) {
+  Serial.print(redValue);
+  Serial.print(" ");
+  Serial.print(greenValue);
+  Serial.print(" ");
+  Serial.println(blueValue);
 }
