@@ -45,5 +45,12 @@ The `loop()` function reads the input values (one for each color: red, green, bl
 Because the value readings were flickering quite a bit, I've used the average reading over a number of measurements in order to compute the LED output intensity. There are constants defined which set how many measurements to take into account for the average, and the delay between measurements.
 
 ### Implementation demo
+**Circuit implementation**
 
-_TODO: link yt_
+![Homework 01 circuit implementation](doc/homework01/circuit_implementation.jpg)
+
+**Video demo**
+
+[https://www.youtube.com/watch?v=vWhn9H-_sig](https://www.youtube.com/watch?v=vWhn9H-_sig)
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/vWhn9H-_sig?si=iUxamJgZzPYvIZyy" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
