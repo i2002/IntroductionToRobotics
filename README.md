@@ -11,6 +11,7 @@ Each homework includes all the code and schematics used in solving the homework,
 ## Contents
 
 - [Homework 1: RGB LED](#homework-1-rgb-led)
+- [Homework 2: Elevator simulator](#homework-2-elevator-simulator-wannabe)
 
 ## Homework 1: RGB LED
 
@@ -52,3 +53,46 @@ Because the value readings were flickering quite a bit, I've used the average re
 **Video demo**
 
 [https://www.youtube.com/watch?v=vWhn9H-_sig](https://www.youtube.com/watch?v=vWhn9H-_sig)
+
+
+## Homework 2: Elevator simulator wannabe
+
+### Task description
+
+The objective of the homework is to simulate the state behaviour of an elevator, using buttons to call the elevator to a floor and status LEDs and a buzzer to indicate elevator state. The elevator can be one of the states: Idle, Moving, Doors closing or Doors opening. The status LED blinks when the elevator is in movement and the floor indicator LEDs change state according to the current floor. A specific sound is played when the doors close, open or the elevator reaches a new floor.
+
+### Components used
+
+- Arduino UNO
+- 3 push buttons
+- 4 LEDs
+- 4 220ohm resistors and 1 100ohm resistor
+- buzzer
+- connection wires
+
+### Circuit diagram
+![Homework 02 circuit diagram](doc/homework02/circuit_diagram.png)
+
+### Code description
+
+The code can be found in `src/homework02/`. Constant definitions can be found at the beginning of the file (such as the pin numbers for the inputs and outputs, action timings, the tone sequences). There are also defined variables for keeping program state and debounce timings. The button and LED pins and states are defined using arrays, which makes it easy to extend the program for an elevator with more floors. Tone sequences are defined as arrays of Notes (which include the frequency and duration of the tone).
+
+The `setup()` function initializez pins and sets the first floor indicator as on.
+
+The `loop()` function implements a state machine for the elevator, keeping track of the current state and state transitions. In order to make the code simpler, I've split the functionality in multiple functions.
+
+The `delayedExec()` and `elevatorButtonPressed()` helper functions contain the logic for executing code only when a predefined interval elapsed using `millis()` and storing the previous `millis()` into a variable. Essentially they are replacements for using `delay()` without blocking the main loop.
+
+The `callElevator()`, `elevatorStartMovement()` and `elevatorMovement()` action function define the behaviour when an action hapens. Call elevator is called on button press and starts the elevator movement if the right conditions are met. `elevatorStartMovement()` starts the movement transition, first waiting for the doors to close. `elevatorMovement()` handles the actions to be taken when the elevator reaches a new floor.
+
+The `updateElevatorStatusIndicator()` functions handles status LED blinking when the elevator is moving.
+
+The `playToneSequence()` and `asyncToneSequence()` functions handle tone sequence playing without delays. The array of notes is stored into a pointer and using `millis()` the next note is played only when the current note duration has elapsed.
+
+
+### Implementation demo
+**Circuit implementation**
+![Homework 02 circuit implementation](doc/homework02/circuit_implementation.jpg)
+
+**Video demo**
+[https://www.youtube.com/watch?v=ePu1kwLA3go](https://www.youtube.com/watch?v=ePu1kwLA3go)
