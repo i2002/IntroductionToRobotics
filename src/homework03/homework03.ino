@@ -87,18 +87,23 @@ const int displayOnState = displayCommonAnnode ? LOW : HIGH;
 /**
  * State types definitions
  */
+
+/** @enum Joystick position (UNCHANGED meaning the state is the same as last read) */
 enum class Direction {
   UP, DOWN, LEFT, RIGHT, NEUTRAL, UNCHANGED
 };
 
+/** @enum Button state (UNCHANGED meaning the state is the same as last read) */
 enum class ButtonState {
   PRESSED, RELEASED, UNCHANGED
 };
 
+/** @enum The actions triggered by button press */
 enum class ButtonAction {
   PRESS, LONG_PRESS, NONE
 };
 
+/** @enum Definitions for segment indexes */
 enum DisplaySegment {
   segA, segB, segC, segD, segE, segF, segG, segDP
 };
@@ -138,8 +143,8 @@ int currentSegmentIndex = segDP;
  * Input state
  */
 
-/** The last joystick position (UP, DOWN, LEFT, RIGHT or NEUTRAL) */
-Direction lastJoystickPosition = Direction::NEUTRAL;
+/** The current joystick position (UP, DOWN, LEFT, RIGHT or NEUTRAL) */
+Direction joystickPosition = Direction::NEUTRAL;
 
 /** Whether to check for long press timing conditions or not (the value is changed
     to true on button press and changed back to false when release before long press
@@ -241,10 +246,8 @@ void loop() {
   }
 
   // > Joystick movement
-  Direction joystickPosition = processJoystickMovement();
-  if (joystickPosition != lastJoystickPosition && joystickPosition != Direction::UNCHANGED) {
+  if (processJoystickMovement() != Direction::UNCHANGED) {
     changeCurrentSegmentAction(joystickPosition);
-    lastJoystickPosition = joystickPosition;
   }
 
   // Display state changes
@@ -272,6 +275,8 @@ void resetAction() {
 /**
  * Toggle segment action.
  * Toggles the active segment state and plays the respective tone sequence.
+ *
+ * @param segmentIndex the index of the segment whose state is to be toggled.
  */
 void toggleSegmentAction(int segmentIndex) {
   resetBlinkActiveSegment();
@@ -365,32 +370,36 @@ Direction processJoystickMovement() {
   // read joystick status
   int joystickX = analogRead(joystickPinX);
   int joystickY = analogRead(joystickPinY);
-  Direction joystickPosition = Direction::UNCHANGED;
+  Direction nextJoystickPosition = Direction::UNCHANGED;
 
   // joystick returned to neutral
-  bool returnedFromUp = lastJoystickPosition == Direction::UP && joystickY < joystickUpperThreshold - joystickReturnThreshlold;
-  bool returnedFromRight = lastJoystickPosition == Direction::RIGHT && joystickX < joystickUpperThreshold - joystickReturnThreshlold;
-  bool returnedFromDown = lastJoystickPosition == Direction::DOWN && joystickY > joystickLowerThreshold + joystickReturnThreshlold;
-  bool returnedFromLeft = lastJoystickPosition == Direction::LEFT && joystickX > joystickLowerThreshold + joystickReturnThreshlold;
+  bool returnedFromUp = joystickPosition == Direction::UP && joystickY < joystickUpperThreshold - joystickReturnThreshlold;
+  bool returnedFromRight = joystickPosition == Direction::RIGHT && joystickX < joystickUpperThreshold - joystickReturnThreshlold;
+  bool returnedFromDown = joystickPosition == Direction::DOWN && joystickY > joystickLowerThreshold + joystickReturnThreshlold;
+  bool returnedFromLeft = joystickPosition == Direction::LEFT && joystickX > joystickLowerThreshold + joystickReturnThreshlold;
   bool joystickReturned = returnedFromUp || returnedFromDown || returnedFromRight || returnedFromLeft;
   if (joystickReturned) {
-    joystickPosition = Direction::NEUTRAL;
+    nextJoystickPosition = Direction::NEUTRAL;
   }
 
   // movement only from neutral position
-  if (lastJoystickPosition == Direction::NEUTRAL || joystickReturned) {
+  if (joystickPosition == Direction::NEUTRAL || joystickReturned) {
     if (joystickY > joystickUpperThreshold) {
-      joystickPosition = Direction::UP;
+      nextJoystickPosition = Direction::UP;
     } else if (joystickX > joystickUpperThreshold) {
-      joystickPosition = Direction::LEFT;
+      nextJoystickPosition = Direction::LEFT;
     } else if (joystickY < joystickLowerThreshold) {
-      joystickPosition = Direction::DOWN;
+      nextJoystickPosition = Direction::DOWN;
     } else if (joystickX < joystickLowerThreshold) {
-      joystickPosition = Direction::RIGHT;
+      nextJoystickPosition = Direction::RIGHT;
     }
   }
 
-  return joystickPosition;
+  if (nextJoystickPosition != Direction::UNCHANGED) {
+    joystickPosition = nextJoystickPosition;
+  }
+
+  return nextJoystickPosition;
 }
 
 // --- Output handlers ---
@@ -422,7 +431,7 @@ void blinkActiveSegment() {
 
 /**
  * Reset the active segment blink state.
- * This is used when an action has ocurred
+ * This is used when an action has ocurred.
  */
 void resetBlinkActiveSegment() {
   lastActiveSegmentBlink = 0;
