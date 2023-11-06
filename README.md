@@ -8,10 +8,13 @@ The microcontroller used for the homeworks is an [Arduino Uno R3](https://docs.a
 
 Each homework includes all the code and schematics used in solving the homework, as well as code documentation and pictures and videos showcasing the final result.
 
+
 ## Contents
 
 - [Homework 1: RGB LED](#homework-1-rgb-led)
 - [Homework 2: Elevator simulator](#homework-2-elevator-simulator-wannabe)
+- [Homework 3: 7 segment display drawing](#homework-3-7-segment-display-drawing)
+
 
 ## Homework 1: RGB LED
 
@@ -77,7 +80,7 @@ The objective of the homework is to simulate the state behaviour of an elevator,
 
 The code can be found in `src/homework02/`. Constant definitions can be found at the beginning of the file (such as the pin numbers for the inputs and outputs, action timings, the tone sequences). There are also defined variables for keeping program state and debounce timings. The button and LED pins and states are defined using arrays, which makes it easy to extend the program for an elevator with more floors. Tone sequences are defined as arrays of Notes (which include the frequency and duration of the tone).
 
-The `setup()` function initializez pins and sets the first floor indicator as on.
+The `setup()` function initializes pins and sets the first floor indicator as on.
 
 The `loop()` function implements a state machine for the elevator, keeping track of the current state and state transitions. In order to make the code simpler, I've split the functionality in multiple functions.
 
@@ -96,3 +99,48 @@ The `playToneSequence()` and `asyncToneSequence()` functions handle tone sequenc
 
 **Video demo**
 [https://www.youtube.com/watch?v=ePu1kwLA3go](https://www.youtube.com/watch?v=ePu1kwLA3go)
+
+
+## Homework 3: 7 segment display drawing
+
+### Task description
+
+The objective of the homework is to control the state of a 7 segment digit display using joystick movement and switch press inputs. Additionally, I've added a buzzer for sound feedback of the state changes.
+
+### Components used
+
+- Arduino UNO
+- a 7 segment digit display
+- joystick
+- buzzer
+- 8 220ohm resistors and 1 100ohm resistor
+- connection wires
+
+### Circuit diagram
+![Homework 03 circuit diagram](doc/homework03/circuit_diagram.png)
+
+### Code description
+
+The code can be found in `src/homework03/`. Constant definitions can be found at the beginning of the file (such as the pin numbers for the inputs and outputs, action timings, the tone sequences, and common annode / cathode configuration for 7 segment display). There are also defined variables for keeping program state and debounce timings. The 7 segment display pins and states are defined using arrays. Tone sequences are defined as arrays of Notes (which include the frequency and duration of the tone).
+
+The `setup()` function initializes pins and registers the joystick switch state change interrupt handler. Because I want to catch both _pressed_ and _released_ states, I set the interrupt mode to `CHANGING`.
+
+The `loop()` function processes input changes and triggers the respective actions. After that the display is updated to reflect the state changes. In order to make the code simpler, I've split the functionality in multiple functions.
+
+The `resetAction()`, `toggleSegmentAction()` and `changeCurrentSegmentAction()` action handlers contain the logic of processing their respective actions. `resetAction()` resets the display and sets the current active segment to _DP_, `toggleSegmentAction()` flips the state of the active segment and `changeCurrentSegmentAction()` applies the transition matrix to determine the next active segment. All actions have an associated tone sequence that is played for sound feedback.
+
+The `handleButtonInterrupt()` ISR function handles joystick switch debouncing using interrupts. When a state is changed and remains stable over the debounce period, the `buttonState` volatile variable is updated to reflect the state change. After the main loop reads the changed value it sets it to `UNCHANGED` so that it knows that the state change has been processed.
+
+The `processButtonAction()` and `processJoystickMovement()` input handlers process the state and input value changes and return the action that is triggered by current state conditions. For the button long press, a timer is started on button press that either is stopped if button is released before reaching the configured long press interval or triggers the long press action when the timer exceeds the long press interval. For joystick movement, only changes from NEUTRAL to either direction or joystick return to NEUTRAL trigger a state change action.
+
+The `updateDisplayState()` function keeps the display in sync with the state in memory. `blinkActiveSegment()` toggles the active state at a configured time interval and `resetBlinkActiveSegment()` resets the blink state (used when an action has been triggered).
+
+`delayedExec()` is a helper function for asynchronous delayed code executions, implemented as in the previous homework. `playToneSequence()` and `asyncToneSequence()` are used for asynchronous tone sequence playing and are implemented as in the previous homework.
+
+
+### Implementation demo
+**Circuit implementation**
+![Homework 03 circuit implementation](doc/homework03/circuit_implementation.jpg)
+
+**Video demo**
+[https://www.youtube.com/watch?v=_RZdfk5xklA](https://www.youtube.com/watch?v=_RZdfk5xklA)
