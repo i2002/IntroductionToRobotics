@@ -26,14 +26,14 @@
  */
 
 /** The upper threshold value above which the program considers joystick movement change */
-const int joystickUpperThreshold = 600;
+const int joystickUpperThreshold = 650;
 
 /** The upper threshold value below which the program considers joystick movement change */
-const int joystickLowerThreshold = 400;
+const int joystickLowerThreshold = 350;
 
 /** The value interval for neutral input zone when joystick returns to neutral state
     - this helps eliminate rapid state changes around threshold values */
-const int joystickReturnThreshlold = 10;
+const int joystickReturnThreshlold = 50;
 
 /** The time interval in milliseconds for joystick switch input debounce */
 const unsigned long buttonPressDebounceInterval = 50;
@@ -374,9 +374,9 @@ Direction processJoystickMovement() {
 
   // joystick returned to neutral
   bool returnedFromUp = joystickPosition == Direction::UP && joystickY < joystickUpperThreshold - joystickReturnThreshlold;
-  bool returnedFromRight = joystickPosition == Direction::RIGHT && joystickX < joystickUpperThreshold - joystickReturnThreshlold;
+  bool returnedFromLeft = joystickPosition == Direction::LEFT && joystickX < joystickUpperThreshold - joystickReturnThreshlold;
   bool returnedFromDown = joystickPosition == Direction::DOWN && joystickY > joystickLowerThreshold + joystickReturnThreshlold;
-  bool returnedFromLeft = joystickPosition == Direction::LEFT && joystickX > joystickLowerThreshold + joystickReturnThreshlold;
+  bool returnedFromRight = joystickPosition == Direction::RIGHT && joystickX > joystickLowerThreshold + joystickReturnThreshlold;
   bool joystickReturned = returnedFromUp || returnedFromDown || returnedFromRight || returnedFromLeft;
   if (joystickReturned) {
     nextJoystickPosition = Direction::NEUTRAL;
