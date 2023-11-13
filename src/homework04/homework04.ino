@@ -53,8 +53,14 @@ int displayDigits[] = {
   segD1, segD2, segD3, segD4
 };
 
-const int displayCount = 4;      // Total number of digits in the display
-const int encodingsNumber = 16;  // Total number of encodings for the hexadecimal characters (0-F)
+// Whether the 7 segment display is in common annode or common cathode configuration
+const bool displayCommonAnnode = false;
+
+// Total number of digits in the display
+const int displayCount = 4;
+
+// Total number of encodings for the hexadecimal characters (0-F)
+const int encodingsNumber = 16;
 
 // Array holding binary encodings for numbers and letters on a 7-segment display
 const byte byteEncodings[encodingsNumber] = {
@@ -77,6 +83,9 @@ const byte byteEncodings[encodingsNumber] = {
   B10011110,  // E
   B10001110   // F
 };
+
+// The digit display common pin value so that the display is on (this depends on common annode or cathode configuration)
+const int displayOnState = displayCommonAnnode ? HIGH : LOW;
 
 
 /*
@@ -374,7 +383,7 @@ void writeReg(int encoding) {
   digitalWrite(latchPin, LOW);  // Pull latch low to start data transfer
   
   // Shift out the bits of the 'encoding' to the shift register
-  shiftOut(dataPin, clockPin, MSBFIRST, encoding);  // MSBFIRST means the most significant bit is shifted out first
+  shiftOut(dataPin, clockPin, MSBFIRST, displayCommonAnnode ? ~encoding : encoding);  // MSBFIRST means the most significant bit is shifted out first
     
   // Pull latch high to transfer data from shift register to storage register
   digitalWrite(latchPin, HIGH);  // This action updates the output of the shift register
@@ -388,13 +397,12 @@ void writeReg(int encoding) {
  *   or -1 to turn off all digits
  */
 void activateDisplay(int displayNumber) {
-  // FIXME: common anode / cathode config
   for (int i = 0; i < displayCount; i++) {
-    digitalWrite(displayDigits[i], HIGH);
+    digitalWrite(displayDigits[i], !displayOnState);
   }
 
   if (displayNumber != -1) {
-    digitalWrite(displayDigits[displayNumber], LOW);
+    digitalWrite(displayDigits[displayNumber], displayOnState);
   }
 }
 
