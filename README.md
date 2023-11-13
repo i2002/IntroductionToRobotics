@@ -14,6 +14,7 @@ Each homework includes all the code and schematics used in solving the homework,
 - [Homework 1: RGB LED](#homework-1-rgb-led)
 - [Homework 2: Elevator simulator](#homework-2-elevator-simulator-wannabe)
 - [Homework 3: 7 segment display drawing](#homework-3-7-segment-display-drawing)
+- [Homework 4: Stopwatch timer](#homework-4-stopwatch-timer)
 
 
 ## Homework 1: RGB LED
@@ -144,3 +145,53 @@ The `updateDisplayState()` function keeps the display in sync with the state in 
 
 **Video demo**
 [https://www.youtube.com/watch?v=_RZdfk5xklA](https://www.youtube.com/watch?v=_RZdfk5xklA)
+
+
+## Homework 4: Stopwatch timer
+
+### Task description
+
+The objective of the homework is to control the state of a 7 segment digit display using joystick movement and switch press inputs. Additionally, I've added a buzzer for sound feedback of the state changes.
+
+### Components used
+
+- Arduino UNO
+- a 4 digit 7 segment digit display
+- 3 button switches
+- 8 220ohm resistors
+- connection wires
+
+### Circuit diagram
+![Homework 04 circuit diagram](doc/homework04/circuit_diagram.png)
+
+### Code description
+
+The code can be found in `src/homework04/`. Constant definitions can be found at the beginning of the file (such as the pin numbers for shift register outputs, action button inputs and display control pins, action timings, common annode / cathode configuration for 7 segment display and the max length of the lap vector). There are also defined variables for keeping program state and button press debounce timings. The stopwatch can be in one of these states: _STOPPED_, _RUNNING_, _PAUSED_. In _STOPPED_ state, the stopwatch can be started (state changing to _RUNNING_), or cycle through saved laps. In _RUNNING_ state, the count is incremented, current count can be saved as laps and the count can be paused (state changing to _PAUSED_). In _PAUSED_ state the count can be reseted (state changing to _STOPPED_) or the count can be resumed (state changing to _RUNNING_). While in _PAUSED_ state, the display blinks.
+
+The `setup()` function initializes pins and registers the start / pause and lap button interrupt handlers triggered on `FALLING` pin state.
+
+The `loop()` function processes input changes, increments the count, updates the blink state and updates the display to reflet state changes. In order to make the code simpler, I've split the functionality in multiple functions.
+
+The `handleStartPauseButtonInterrupt()`, `handleLapButtonInterrupt()` and `handleResetButtonPress()` contain button press handling logic calling the respective action handlers depending on current state. The first two are interrupt handlers in order to achieve better time precision.
+
+The `toggleStartPauseStopwatch()` action handler toggles between the _RUNNING_ and _PAUSED_ stopwatch states.
+
+The `saveLapAction()` action handler saves the current count as a new lap. The `nextLapInsertIndex` variable is used to cycle around the index where the lap time is saved when the maximum length of the lap vector is exceeded.
+
+The `cycleViewLapsAction()` action handler updates the `activeViewLapIndex` state to cycle around saved values. The first index provided corresponds to the oldest added value. When the index reaches the end of the lap vector, it cycles around to the beginning.
+
+The `resetCountAction()` action handler switches to _STOPPED_ state and resets the count and the active view lap index.
+
+The `resetLapsAction()` action handler resets the recorded laps.
+
+The `displayNumber()` function along with `writeReg()` and `activateDisplay()` helper functions write a number to the 4 digit 7 segment display, using the shift register. `writeReg()` writes a binary encoding of the display pins (A, B, C, D, E, F, G, DP) to the register for the active display. Using `activateDisplay()`, all the 4 digits are written sequentially but fast enough so that they apear to be always on.
+
+The `buttonInterruptDebounce()` and `buttonDebounce()` helper functions are used to identify debounced button presses inside interrupt handler or in the `loop()` function. They only return true when the debounced button state changed to pressed. The `delayedExec()` helper function handles the asyncrhonous delayed execution of code, returning true only when the specified interval has elapsed since last execution.
+
+
+### Implementation demo
+**Circuit implementation**
+![Homework 04 circuit implementation](doc/homework04/circuit_implementation.jpg)
+
+**Video demo**
+[https://www.youtube.com/watch?v=vgNZHsnJdfU](https://www.youtube.com/watch?v=vgNZHsnJdfU)
