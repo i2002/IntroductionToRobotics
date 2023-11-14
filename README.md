@@ -151,12 +151,13 @@ The `updateDisplayState()` function keeps the display in sync with the state in 
 
 ### Task description
 
-The objective of the homework is to control the state of a 7 segment digit display using joystick movement and switch press inputs. Additionally, I've added a buzzer for sound feedback of the state changes.
+The objective of the homework is to create a simple stowpatch timer with lap recording functionality using a 4 digit 7 segment display. Also, in order to have fewer arduino connections, the display output is controlled through a shfit register.
 
 ### Components used
 
 - Arduino UNO
 - a 4 digit 7 segment digit display
+- a SN74HC595 shift register
 - 3 button switches
 - 8 220ohm resistors
 - connection wires
