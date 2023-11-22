@@ -1,14 +1,29 @@
 #include <EEPROM.h>
 
 // --- Configs ---
+// - Max array lengts
 const int maxNestedMenus = 3;
+const int maxInputBuf = 100;
+const int maxLoggedValues = 10;
+const int rgbHexStrLen = 7;
+
+// - Sensor value intervals
+const int minSamplingRate = 1;
+const int maxSamplingRate = 10;
+const int minUltrasonicValue = 1;
+const int maxUltrasonicValue = 400; // 400 cm
+const int minLDRValue = 1;
+const int maxLDRValue = 1023;
+
+// - Board pins
 const byte ultrasonicTrigPin = 10;
 const byte ultrasonicEchoPin = 9;
 const byte ldrPin = A0;
-const byte redLedPin = 2;
-const byte greenLedPin = 3;
-const byte blueLedPin = 4;
+const byte redLedPin = 3;
+const byte greenLedPin = 5;
+const byte blueLedPin = 6;
 
+// - EEPROM store indexes
 const int samplingIntervalStoreIndex = 10;
 const int ultrasonicThresholdStoreIndex = samplingIntervalStoreIndex + sizeof(byte);
 const int ldrThresholdStoreIndex = ultrasonicThresholdStoreIndex + sizeof(int);
@@ -16,6 +31,7 @@ const int rgbValueStoreIndex = ldrThresholdStoreIndex + sizeof(int);
 
 
 // --- Type definitions ---
+// - App enums
 enum class AppMenus {
   MAIN_MENU,
   SENSOR_SETTINGS_MENU,
@@ -30,8 +46,7 @@ enum class MenuAction {
   CHANGE_INPUT_CONTEXT,
   DISPLAY_LAST_READINGS,
   DISPLAY_CURRENT_SETTINGS,
-  TOGGLE_LED_AUTO_MODE,
-  RESET_DATA
+  TOGGLE_LED_AUTO_MODE
 };
 
 enum class InputContext {
@@ -39,34 +54,88 @@ enum class InputContext {
   SAMPLING_RATE,
   ULTRASONIC_THRESHOLD,
   LDR_THERSHOLD,
-  RESET_CONFIRMATION,
+  RESET_ULTRASONIC_LOGS_CONFIRM,
+  RESET_LDR_LOGS_CONFIRM,
   READINGS_DISPLAY,
-  RGB_RED_VALUE,
-  RGB_GREEN_VALUE,
-  RGB_BLUE_VALUE
+  RGB_LED_VALUE
 };
 
+// - Macro for getting the size of a statically allocated vector of MenuOptions
 #define MENU_OPTIONS_SIZE(options) sizeof(options) / sizeof(MenuOption)
 
 
+/**
+ * @struct MenuOption
+ * This struct defines the information about a menu option (its name, the action triggered by the menu and the data associated with the action).
+ * It is used to configure the options displayed when a menu is active.
+ */
 struct MenuOption {
-  String name;
+  const char *name;
   MenuAction action;
   int actionData;
 
-  MenuOption(String _name, MenuAction _action) : MenuOption{_name, _action, 0} {};
-  MenuOption(String _name, MenuAction _action, int _actionData) : name{_name}, action{_action}, actionData{_actionData} {};
-  MenuOption(String _name, MenuAction _action, AppMenus _actionData) : name{_name}, action{_action}, actionData{(int) _actionData} {};
-  MenuOption(String _name, MenuAction _action, InputContext _actionData) : name{_name}, action{_action}, actionData{(int) _actionData} {};
+  MenuOption(const char *_name, MenuAction _action) : MenuOption{_name, _action, 0} {};
+  MenuOption(const char *_name, MenuAction _action, int _actionData) : name{_name}, action{_action}, actionData{_actionData} {};
+  MenuOption(const char *_name, MenuAction _action, AppMenus _actionData) : name{_name}, action{_action}, actionData{(int) _actionData} {};
+  MenuOption(const char *_name, MenuAction _action, InputContext _actionData) : name{_name}, action{_action}, actionData{(int) _actionData} {};
 };
 
+
+/**
+ * @struct Menu
+ * This struct defines the information about a menu (its name and the options of that menu).
+ */
 struct Menu {
-  String name;
+  const char *name;
   const MenuOption *options;
   int lenOptions;
 };
 
-// --- Define app menu options ---
+
+/**
+ * @struct SensorLog
+ * This struct is used to log the last nth (maxLoggedValues) values recorded for a sensor.
+ */
+struct SensorLog {
+  int dataLog[maxLoggedValues];
+  int currentIndex = 0;
+
+  /**
+   * Log a new sensor value.
+   */
+  void logValue(int value) {
+    dataLog[currentIndex] = value;
+    currentIndex = (currentIndex + 1) % maxLoggedValues;
+  }
+
+  /**
+   * Get a logged value at a specified index.
+   *
+   * @param logIndex the index of the value to be returned from the log (index 0 corresponds with the oldest value recorded.)
+   * @return the requested value
+   */
+  int getLog(int logIndex) {
+    return dataLog[(currentIndex + logIndex) % maxLoggedValues];
+  }
+
+  /**
+   * Reset the saved logs
+   */
+  void resetLogs() {
+    for (int i = 0; i < maxLoggedValues; i++) {
+      dataLog[i] = 0;
+    }
+    currentIndex = 0;
+  }
+};
+
+
+// --- App menu structure definition ---
+/*
+ * Each menu and submenu is found in the menus vector (with the AppMenus enum for easier indexing).
+ * For each menu there is defined a vector of MenuOptions which contain the available options for that menu.
+ * The menu routine displays the options associated with the current menu and on option input executed the action defined in the MenuOption struct.
+ */
 const MenuOption mainMenuOptions[] = {
   { "Sensor settings", MenuAction::CHANGE_MENU, AppMenus::SENSOR_SETTINGS_MENU },
   { "Reset logger data", MenuAction::CHANGE_MENU, AppMenus::RESET_LOGGER_DATA_MENU },
@@ -81,8 +150,8 @@ const MenuOption sensorSettingsSubmenu[] = {
 };
 
 const MenuOption resetDataSubmenu[] = {
-  { "Yes", MenuAction::RESET_DATA },
-  { "No", MenuAction::MENU_BACK }
+  { "Reset ultrasonic data", MenuAction::CHANGE_INPUT_CONTEXT, InputContext::RESET_ULTRASONIC_LOGS_CONFIRM },
+  { "Reset LDR data", MenuAction::CHANGE_INPUT_CONTEXT, InputContext::RESET_LDR_LOGS_CONFIRM }
 };
 
 const MenuOption systemStatusSubmenu[] = {
@@ -92,59 +161,101 @@ const MenuOption systemStatusSubmenu[] = {
 };
 
 const MenuOption rgbLedSubmenu[] = {
-  { "Manual Color Control", MenuAction::CHANGE_INPUT_CONTEXT, InputContext::RGB_BLUE_VALUE },
+  { "Manual Color Control", MenuAction::CHANGE_INPUT_CONTEXT, InputContext::RGB_LED_VALUE },
   { "LED: Toggle Automatic ON/OFF", MenuAction::TOGGLE_LED_AUTO_MODE },
 };
 
 
-// --- Define App menus (with enum for easier access) ---
 const Menu menus[] = {
-  { "Main menu", mainMenuOptions, MENU_OPTIONS_SIZE(mainMenuOptions) },
-  { "Sensor settings", sensorSettingsSubmenu, MENU_OPTIONS_SIZE(sensorSettingsSubmenu) },
-  { "Reset logger data", resetDataSubmenu, MENU_OPTIONS_SIZE(resetDataSubmenu) },
-  { "System status", systemStatusSubmenu, MENU_OPTIONS_SIZE(systemStatusSubmenu) },
-  { "RGB LED Control", rgbLedSubmenu, MENU_OPTIONS_SIZE(rgbLedSubmenu) },
+  { "Main menu", mainMenuOptions, MENU_OPTIONS_SIZE(mainMenuOptions) }, // MAIN_MENU
+  { "Sensor settings", sensorSettingsSubmenu, MENU_OPTIONS_SIZE(sensorSettingsSubmenu) }, // SENSOR_SETTINGS_MENU
+  { "Reset logger data", resetDataSubmenu, MENU_OPTIONS_SIZE(resetDataSubmenu) }, // RESET_LOGGER_DATA_MENU
+  { "System status", systemStatusSubmenu, MENU_OPTIONS_SIZE(systemStatusSubmenu) }, // SYSTEM_STATUS_MENU
+  { "RGB LED Control", rgbLedSubmenu, MENU_OPTIONS_SIZE(rgbLedSubmenu) } // RGB_LED_CONTROL_MENU
 };
 
 
-// --- Define input context and messages ---
-const String inputMessages[] = {
+// --- Define input prompt messages ---
+/*
+ * The input context is used to identify how the data from serial input should be interpreted.
+ * Based on the current input context, the right handler is used to process the input and update the app state.
+ * The input prompt is displayed in the console to let the user know what data does the program expect.
+ * The input prompts for each input context are defined below.
+ */
+const char *inputPromptMessages[] = {
   "Select menu option", // MENU_SELECTION
-  "Input sampling rate", // SAMPLING_RATE
-  "Input ultrasonic threshold", // ULTRASONIC_THRESHOLD
-  "Input LDR threshold value", // LDR_THERSHOLD
-  "Are you sure you want to reset configuration? (Y / N)", // RESET_CONFIRMATION
+  "Input sampling rate (between 1 and 10 seconds)", // SAMPLING_RATE
+  "Input ultrasonic min alert threshold (between 1 and 400 cm)", // ULTRASONIC_THRESHOLD
+  "Input LDR min alert threshold (between 1 and 1023)", // LDR_THERSHOLD
+  "Are you sure you want to reset ultrasonic logged data? (y / n)", // RESET_ULTRASONIC_LOGS_CONFIRM
+  "Are you sure you want to reset ldr logged data? (y / n)", // RESET_LDR_LOGS_CONFIRM
   "Press any key to return to main menu", // READINGS_DISPLAY
-  "Input RGB red channel value", // RGB_RED_VALUE
-  "Input RGB green channel value", // RGB_GREEN_VALUE
-  "Input RGB blue channel value" // RGB_BLUE_VALUE
+  "Input RGB LED VALUE (in #fffff format)" // RGB_LED_VALUE
 };
 
 const char *invalidInputMessage = "Invalid option. Please try again";
 
 
 // --- App state ---
+// - Menu state
+/*
+ * The menu works using a menu stack.
+ * When selecting a menu option which leads to a submenu, the nesting level is increased and the new menu is added to the stack.
+ * When selecting the back option, the last menu is popped from the stack and the nesting level is decreased.
+ * The main menu cannot be removed from the stack.
+ */
 AppMenus menuStack[maxNestedMenus];
 int menuNestingLevel = 0;
+
+// - Serial input
+/*
+ * The characters received from the serial input are appended to the input buffer until either a newline character (\n or \r) is reaced
+ * or the buffer reaches its maximum length.
+ * When that happens, the current input context handler is executed to process the input buffer.
+ * After that the process is repeated.
+ */
 InputContext currentInputContext = InputContext::MENU_SELECTION;
+char inputBuffer[maxInputBuf];
+int inputBufferIndex = 0;
+
+// - Timing states
 unsigned long lastSensorRead = 0;
 
-const int maxLoggedValues = 10;
-int ultrasonicValuesLog[maxLoggedValues];
-int ldrValuesLog[maxLoggedValues];
-
-bool ledAutoMode = false;
+// - App settings
+/** The sensor sampling rate in seconds */
 byte samplingRate = 1;
 int ultrasonicThreshold = 0;
 int ldrThreshold = 0;
+long rgbValue = 0;
+bool ledAutoMode = false;
+bool thresholdTriggered = false;
 
+// - Data logs
+/*
+ * The data for each sensor is logged in the SensorLog class which handles internally the current index and the log actions
+ */
+SensorLog ultrasonicValuesLog;
+SensorLog ldrValuesLog;
+
+
+/**
+ * Process menu action.
+ * The specified menu action handler is called, forwarding the action data information.
+ *
+ * @param action the menu action
+ * @param actionData (optional) aditional data for the action handler
+ */
 void processMenuAction(MenuAction action, int actionData = 0);
 
 
+/**
+ * Program setup
+ */
 void setup() {
+  // Setup serial
   Serial.begin(9600);
 
-  //
+  // Setup pins
   pinMode(redLedPin, OUTPUT);
   pinMode(greenLedPin, OUTPUT);
   pinMode(blueLedPin, OUTPUT);
@@ -152,38 +263,51 @@ void setup() {
   pinMode(ultrasonicEchoPin, INPUT);
   pinMode(ldrPin, INPUT);
 
-  // read settings from EEPROM
+  // Read settings from EEPROM
   EEPROM.get(samplingIntervalStoreIndex, samplingRate);
   EEPROM.get(ultrasonicThresholdStoreIndex, ultrasonicThreshold);
   EEPROM.get(ldrThresholdStoreIndex, ldrThreshold);
+  EEPROM.get(rgbValueStoreIndex, rgbValue);
 
-  // setup menus
+  // Setup menus
   menuNestingLevel = 1;
   currentInputContext = InputContext::MENU_SELECTION;
   menuStack[0] = AppMenus::MAIN_MENU;
+
+  // Show initial prompt
   printInputPrompt();
 }
 
+
+/**
+ * Program loop.
+ * - Process input when the input is available and a complete line has been received from serial input and show the input prompt.
+ * - Process sensor data at the configured sampling rate.
+ */
 void loop() {
-  // input event
-  if (Serial.available() > 0) {
+  // Input event
+  if (Serial.available() > 0 && receiveSerial()) {
     processInput();
     printInputPrompt();
-    // Serial.print("Current level: ");
-    // Serial.print(menuNestingLevel);
-    // Serial.print(" , current menu ");
-    // Serial.print((int)menuStack[menuNestingLevel]);
-    // Serial.print(" , current input context: ");
-    // Serial.println((int)currentInputContext);
   }
 
-
+  // Sensor processing
   if (delayedExec(lastSensorRead, samplingRate * 1000)) {
     processSensors();
+    updateLED();
   }
 }
 
+
+/**
+ * Process the data from the input buffer using a handler based on the current input context.
+ * If the input is invalid, the handler returns false and a warning message will be displayed.
+ * On successful data input (other than menu option input), the context returns to the menu.
+ */
 void processInput() {
+  // echo input to console
+  Serial.println(inputBuffer);
+
   bool inputValid = true;
   const InputContext inputContext = currentInputContext;
   switch (inputContext) {
@@ -203,8 +327,19 @@ void processInput() {
       inputValid = processLDRThresholdInput();
       break;
 
+    case InputContext::RESET_ULTRASONIC_LOGS_CONFIRM:
+      inputValid = resetUltrasonicLogs();
+      break;
+
+    case InputContext::RESET_LDR_LOGS_CONFIRM:
+      inputValid = resetLDRLogs();
+      break;
+    
+    case InputContext::RGB_LED_VALUE:
+      inputValid = processRgbLedValueInput();
+      break;
+
     default:
-      Serial.read();
       currentInputContext = InputContext::MENU_SELECTION;
       break;
   }
@@ -217,24 +352,41 @@ void processInput() {
   }
 }
 
+
+/**
+ * Print the current input context prompt.
+ * If current context is MENU_SELECTION also print the current menu.
+ */
 void printInputPrompt() {
   if (currentInputContext == InputContext::MENU_SELECTION) {
     printCurrentMenu();
   }
 
   Serial.print("> ");
-  Serial.println(inputMessages[(int) currentInputContext]);
+  Serial.print(inputPromptMessages[(int) currentInputContext]);
+  Serial.print(": ");
+
+  if (currentInputContext == InputContext::READINGS_DISPLAY) {
+    Serial.println();
+  }
 }
 
+
 // --- Menu handling functions ---
+/**
+ * Process menu input.
+ * Execute the menu action associated with the selected submenu.
+ *
+ * @return true if selection was valid, false otherwise
+ */
 bool processMenuInput() {
-  int option = Serial.parseInt();
+  int option;
+  if (!inputParseInt(option)) {
+    return false;
+  }
+
   option--; // we use 0 indexed arrays
   const Menu &currentMenu = getCurrentMenu();
-  // Serial.print("Input option ");
-  // Serial.print(option);
-  // Serial.print(", lenOptions ");
-  // Serial.println(currentMenu.lenOptions);
   
   if (menuNestingLevel > 1 && option == currentMenu.lenOptions) {
     processMenuAction(MenuAction::MENU_BACK);
@@ -247,12 +399,8 @@ bool processMenuInput() {
   return true;
 }
 
-void processMenuAction(MenuAction action, int actionData) {
-  // Serial.print("action ");
-  // Serial.print((int) action);
-  // Serial.print(", actionData ");
-  // Serial.println(actionData);
 
+void processMenuAction(MenuAction action, int actionData) {
   switch (action) {
     case MenuAction::CHANGE_MENU:
       menuStack[++menuNestingLevel] = (AppMenus) actionData;
@@ -264,10 +412,6 @@ void processMenuAction(MenuAction action, int actionData) {
 
     case MenuAction::CHANGE_INPUT_CONTEXT:
       currentInputContext = (InputContext) actionData;
-      break;
-
-    case MenuAction::RESET_DATA:
-      resetLoggedData();
       break;
 
     case MenuAction::DISPLAY_CURRENT_SETTINGS:
@@ -284,35 +428,68 @@ void processMenuAction(MenuAction action, int actionData) {
   }
 }
 
+
+/**
+ * Displays the current menu
+ */
 void printCurrentMenu() {
   const Menu &menu = getCurrentMenu();
-  Serial.print("\n--- ");
-  Serial.print(menu.name);
-  Serial.println(" ---");
+  printTitle(menu.name);
 
   for (int i = 0; i < menu.lenOptions; i++) {
-    Serial.print(i + 1);
-    Serial.print(". ");
-    Serial.println(menu.options[i].name);
+    printMenuOption(i + 1, menu.options[i].name);
   }
 
   // if not top level, back option
   if (menuNestingLevel > 1) {
-    Serial.print(menu.lenOptions + 1);
-    Serial.println(". Back");
+    printMenuOption(menu.lenOptions + 1, "Back");
   }
   Serial.println();
 }
 
+
+/**
+ * Display format utility function to display a title
+ *
+ * @param text the title text
+ */
+void printTitle(const char* text) {
+  Serial.print("\n--- ");
+  Serial.print(text);
+  Serial.println(" ---");
+}
+
+
+/**
+ * Display format utility function to display a menu option
+ */
+void printMenuOption(int index, const char* name) {
+  Serial.print(index);
+  Serial.print(". ");
+  Serial.println(name);
+}
+
+
+/**
+ * Get the active menu from the menu stack.
+ * @return reference to the current menu
+ */
 const Menu& getCurrentMenu() {
   return menus[(int) menuStack[menuNestingLevel]];
 }
 
 
 // --- Input handling functions ---
+
+/**
+ * Process the sampling rate input
+ *
+ * @return true if valid input, false otherwise
+ */
 bool processSamplingRateInput() {
-  int input = Serial.parseInt();
-  if (input <= 0 || input > 10) {
+  int input;
+  bool valid = inputParseInt(input);
+  if (!valid || input < minSamplingRate || input > maxSamplingRate) {
     return false;
   }
 
@@ -321,9 +498,16 @@ bool processSamplingRateInput() {
   return true;
 }
 
+
+/**
+ * Process ultrasonic sensor threshold input.
+ *
+ * @return true if valid input, false otherwise
+ */
 bool processUltrasonicThresholdInput() {
-  int input = Serial.parseInt();
-  if (input <= 0 || input > 2000) {
+  int input;
+  bool valid = inputParseInt(input);
+  if (!valid || input < minUltrasonicValue || input > maxUltrasonicValue) {
     return false;
   }
 
@@ -332,9 +516,16 @@ bool processUltrasonicThresholdInput() {
   return true;
 }
 
+
+/**
+ * Process LDR sensor threshold input.
+ *
+ * @return true if valid input, false otherwise
+ */
 bool processLDRThresholdInput() {
-  int input = Serial.parseInt();
-  if (input <= 0 || input > 2000) {
+  int input;
+  bool valid = inputParseInt(input);
+  if (!valid || input < minLDRValue || input > maxLDRValue) {
     return false;
   }
 
@@ -344,16 +535,123 @@ bool processLDRThresholdInput() {
 }
 
 
+/**
+ * Process ultrasonic logs reset confirmation.
+ *
+ * @return true if valid input, false otherwise
+ */
+bool resetUltrasonicLogs() {
+  // input length should be 1
+  if (inputBuffer[1] != 0) {
+    return false;
+  }
+
+  char choice = inputBuffer[0];
+
+  // invalid choice
+  if (choice != 'y' && choice != 'n') {
+    return false;
+  }
+
+  // user confirmed
+  if (choice == 'y') {
+    Serial.println("Data reseted.");
+    ultrasonicValuesLog.resetLogs();
+  }
+
+  return true;
+}
+
+
+/**
+ * Process LDR logs reset confirmation.
+ *
+ * @return true if valid input, false otherwise
+ */
+bool resetLDRLogs() {
+  // input length should be 1
+  if (inputBuffer[1] != 0) {
+    return false;
+  }
+
+  char choice = inputBuffer[0];
+
+  // invalid choice
+  if (choice != 'y' && choice != 'n') {
+    return false;
+  }
+
+  // user confirmed
+  if (choice == 'y') {
+    Serial.println("Data reseted.");
+    ldrValuesLog.resetLogs();
+  }
+
+  return true;
+}
+
+
+/**
+ * Process RGB LED color input.
+ * The input is a string of the hex representation of the RGB value (for example #ffffff for values 255 255 255).
+ * The function checks if the input is valid and transforms it into a long variable that contains the inputed value.
+ *
+ * @return true if valid input, false otherwise
+ */
+bool processRgbLedValueInput() {
+  // should start with #
+  if (inputBuffer[0] != '#') {
+    return false;
+  }
+
+  // should have length 7
+  if (inputBuffer[rgbHexStrLen] != 0) {
+    return false;
+  }
+
+  // parse hex number
+  long input = 0;
+  for (int i = 1; i < rgbHexStrLen; i++) {
+    char digit = inputBuffer[i];
+    // should contain only hex digits (0 - 9 and a - f)
+    if ((digit < '0' || digit > '9') && (digit < 'a' || digit > 'f')) {
+      return false;
+    } else {
+      int digitValue = digit <= '9' ? digit - '0' : digit - 'a' + 10;
+      input = input * 16 + digitValue;
+    }
+  }
+
+  // store value
+  rgbValue = input;
+  EEPROM.put(rgbValueStoreIndex, rgbValue);
+  updateLED();
+  return true;
+}
+
+
 // --- Data printing functions ---
+
+/**
+ * Format printing sensor values
+ *
+ * @param ultrasonicValue the value for the ultrasonic sensor
+ * @param ldrValue the value for the LDR sensor
+ */
 void printSensorValues(int ultrasonicValue, int ldrValue) {
-  Serial.print("# ");
+  Serial.print("- ultrasonic: ");
   Serial.print(ultrasonicValue);
-  Serial.print(", ");
+  Serial.print(", ldr: ");
   Serial.println(ldrValue);
 }
 
+
+/**
+ * Display current sensor settings.
+ */
 void printSensorSettings() {
-  Serial.println("\n--- Sensor settings ---");
+  printTitle("Sensor settings");
+
   Serial.print("- Sampling interval: ");
   Serial.println(samplingRate);
   Serial.print("- Ultrasonic sensor threshold: ");
@@ -361,55 +659,126 @@ void printSensorSettings() {
   Serial.print("- LDR sensor threshold: ");
   Serial.println(ldrThreshold);
   Serial.print("- LED auto mode: ");
-  Serial.print(ledAutoMode ? "On" : "Off");
+  Serial.println(ledAutoMode ? "On" : "Off");
+  Serial.print("- Manual LED color: Red: ");
+  Serial.print(getRedValue());
+  Serial.print(", Green: ");
+  Serial.print(getGreenValue());
+  Serial.print(", Blue: ");
+  Serial.println(getBlueValue());
 }
 
+
+/**
+ * Print the last logged sensor values in reverse order.
+ * The first printed value is the last recorded value.
+ */
 void printLastLoggedData() {
-  Serial.println("\n--- Last logged data ---");
-  for (int i = 0; i < maxLoggedValues; i++) {
-    printSensorValues(ultrasonicValuesLog[i], ldrValuesLog[i]);
+  printTitle("Last logged data");
+
+  for (int i = maxLoggedValues - 1; i >= 0; i--) {
+    printSensorValues(ultrasonicValuesLog.getLog(i), ldrValuesLog.getLog(i));
   }
 }
 
-// --- Data logging ---
-int currentLoggingIndex = 0;
-void logSensorValues(int ultrasonicValue, int ldrValue) {
-  ultrasonicValuesLog[currentLoggingIndex] = ultrasonicValue;
-  ldrValuesLog[currentLoggingIndex] = ldrValue;
-  currentLoggingIndex = (currentLoggingIndex + 1) % maxLoggedValues;
+
+// --- Serial handling ---
+
+/**
+ * Reveive chars from serial input and append them to the input buffer.
+ * One input line is considered complete when either the end line character is read ('\n' or '\r') or the maximum buffer capacity is reached.
+ * When a complete input line has been read, the buffer is NULL terminated and the current index is reseted.
+ * It is used to know if the input processing can be triggered (i.e. a complete new input has been recorted in the input buffer)
+ * 
+ * @return true if the buffer contains a complete line input (that can be processed), false otherwise
+ */
+bool receiveSerial() {
+  char recv = Serial.read();
+  bool lineEndMarker = recv == '\n' || recv == '\r';
+
+  // end of input line
+  if (lineEndMarker || inputBufferIndex == maxInputBuf - 1) {
+    // mark string end
+    inputBuffer[inputBufferIndex] = 0;
+
+    // ignore empty string
+    if (inputBufferIndex == 0) {
+      return false;
+    }
+
+    // reset input index
+    inputBufferIndex = 0;
+
+    return true;
+  }
+
+  inputBuffer[inputBufferIndex++] = recv;
+  return false;
 }
 
-void resetLoggedData() {
-  for (int i = 0; i < maxLoggedValues; i++) {
-    ultrasonicValuesLog[i] = 0;
-    ldrValuesLog[i] = 0;
+
+/**
+ * Parse integer value form input buffer.
+ * 
+ * @param input reference to the value where to store the parsed input
+ * @returns true if the parsing succeded (the buffer contains a valid integer), false otherwise
+ */
+bool inputParseInt(int &input) {
+  input = 0;
+  int negative = inputBuffer[0] == '-';
+
+  for (int i = negative ? 1 : 0; i < maxInputBuf && inputBuffer[i] != 0; i++) {
+    // character isn't a digit
+    if (inputBuffer[i] < '0' || inputBuffer[i] > '9') {
+      return false;
+    }
+
+    input = input * 10 + (inputBuffer[i] - '0');
   }
-  currentLoggingIndex = 0;
-  Serial.println("> Logged data reseted");
+
+  // negative integer
+  if (negative) {
+    input *= -1;
+  }
+
+  return true;
 }
+
 
 // --- Sensor readings ---
+
+/**
+ * Read and log sensor values and update threshold trigger.
+ */
 void processSensors() {
   int ultrasonicValue = readUltrasonicValue();
   int ldrValue = readLDRValue();
-
-  if (ledAutoMode) {
-    if (ultrasonicValue < ultrasonicThreshold || ldrValue < ldrThreshold) {
-      digitalWrite(greenLedPin, LOW);
-      digitalWrite(redLedPin, HIGH);
-    } else {
-      digitalWrite(greenLedPin, HIGH);
-      digitalWrite(redLedPin, LOW);
-    }
-  }
 
   if (currentInputContext == InputContext::READINGS_DISPLAY) {
     printSensorValues(ultrasonicValue, ldrValue);
   }
 
-  logSensorValues(ultrasonicValue, ldrValue);
+  ultrasonicValuesLog.logValue(ultrasonicValue);
+  ldrValuesLog.logValue(ldrValue);
+
+  thresholdTriggered = false;
+  if (ultrasonicValue < ultrasonicThreshold) {
+    Serial.println("\n! Proximity alert");
+    thresholdTriggered = true;
+  }
+
+  if (ldrValue < ldrThreshold) {
+    Serial.println("\n! Low light conditions");
+    thresholdTriggered = true;
+  }
 }
 
+
+/**
+ * Read the distance measured by the ultrasonic sensor.
+ *
+ * @return the distance
+ */
 int readUltrasonicValue() {
   digitalWrite(ultrasonicTrigPin, LOW);
   delayMicroseconds(2);
@@ -422,9 +791,72 @@ int readUltrasonicValue() {
   return duration * 0.034 / 2;
 }
 
+
+/**
+ * Read the luminance measured by the LDR sensor.
+ *
+ * @return LDR sensor value
+ */
 int readLDRValue() {
   return analogRead(ldrPin);
 }
+
+
+// --- LED handler ---
+
+/**
+ * Update the RGB LED color based on current state.
+ * - If in auto mode, red or green based on treshold trigger
+ * - If in manual mode, use the values configured by user
+ */
+void updateLED() {
+  if (ledAutoMode) {
+    if (thresholdTriggered) {
+      digitalWrite(redLedPin, HIGH);
+      digitalWrite(greenLedPin, LOW);
+      digitalWrite(blueLedPin, LOW);
+    } else {
+      digitalWrite(redLedPin, LOW);
+      digitalWrite(greenLedPin, HIGH);
+      digitalWrite(blueLedPin, LOW);
+    }
+  } else {
+    analogWrite(redLedPin, getRedValue());
+    analogWrite(greenLedPin, getGreenValue());
+    analogWrite(blueLedPin, getBlueValue());
+  }
+}
+
+
+/**
+ * Compute the red channel LED value from rgbValue config
+ *
+ * @return the specified value (0 - 255)
+ */
+int getRedValue() {
+  return (rgbValue >> 16) & 0xFF;
+}
+
+
+/**
+ * Compute the green channel LED value from rgbValue config
+ *
+ * @return the specified value (0 - 255)
+ */
+int getGreenValue() {
+  return (rgbValue >> 8) & 0xFF;
+}
+
+
+/**
+ * Compute the blue channel LED value from rgbValue config
+ *
+ * @return the specified value (0 - 255)
+ */
+int getBlueValue() {
+  return rgbValue & 0xFF;
+}
+
 
 // --- Utility functions ---
 
