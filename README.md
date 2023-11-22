@@ -15,6 +15,7 @@ Each homework includes all the code and schematics used in solving the homework,
 - [Homework 2: Elevator simulator](#homework-2-elevator-simulator-wannabe)
 - [Homework 3: 7 segment display drawing](#homework-3-7-segment-display-drawing)
 - [Homework 4: Stopwatch timer](#homework-4-stopwatch-timer)
+- [Homework 5: Pseudo-smart environment monitor and logger](#homework-5-pseudo-smart-environment-monitor-and-logger)
 
 
 ## Homework 1: RGB LED
@@ -196,3 +197,83 @@ The `buttonInterruptDebounce()` and `buttonDebounce()` helper functions are used
 
 **Video demo**
 [https://www.youtube.com/watch?v=vgNZHsnJdfU](https://www.youtube.com/watch?v=vgNZHsnJdfU)
+
+
+## Homework 5: Pseudo-smart environment monitor and logger
+
+### Task description
+
+The objective of this homework is to create a sensor monitor and logger which can be controlled unsing serial communication between the computer and the Arduino board. Using serial inputs and outputs, a console interface is presented to the user, who can navigate through menus to see the current sensor values and the last 10 logged values and can change sensor alert thresholds. The monitoring component consists of changing the color of a RGB LED when the sensor values are below the configured thresholds. Moreover, the settings are saved on EEPROM and can be restored at launch. The RGB LED color can either be controlled automatically (if a sensor alert has been triggered is red, otherwise green), or manually, specifing a value for each of the red, green and blue channels. The sensors used are the ultrasonic sensor for distance measuring and the LDR sensor, to detect ambiental light brightness.
+
+### Components used
+
+- Arduino UNO
+- HC-SR04 ultrasonic sensor
+- LDR sensor
+- RGB LED
+- 3 220ohm resistors and one 10k ohm resistor
+- connection wires
+
+### Circuit diagram
+![Homework 05 circuit diagram](doc/homework05/circuit_diagram.png)
+
+### Code description
+
+The code can be found in `src/homework05/`, where the program file is split into sections with comments detailing each function.
+
+**Menu handling**\
+In order to make the code easier to reuse and extend, I've generalized the functionality of the menu. Each menu and submenu in the app is found in the `menus` vector and is represented by the `Menu` struct. Their indexes in the vector are also aliased by the `AppMenus` enum for easier access. Each menu contains its title and a vector of menu options (along with the vector length). Each menu option contains its label (that is shown to the user) and the action that is triggered by selecting the menu (and optionally additional information for the action handler). 
+
+The actions available are specified in the `MenuAction` enum, and for this program they are: `CHANGE_MENU`, `MENU_BACK`, `CHANGE_INPUT_CONTEXT`, `DISPLAY_LAST_READINGS`, `DISPLAY_CURRENT_SETTINGS`, `TOGGLE_LED_AUTO_MODE`. The menu action handler (`processMenuAction()`) calls the apropiate handler based on the action selected. `CHANGE_MENU` and `MENU_BACK` are related to the menu navigation, and push or pop a menu to / from the menu stack.
+
+The application menu system works using a menu stack. When selecting a menu option which leads to a submenu (`CHANGE_MENU` action), the nesting level is increased and the selected submenu is added to the stack. When selecting the back option (`MENU_BACK` action, which is added automatically for all menus with nesting larger than 0), the current menu is popped from the stack and the nesting level is decreased. The main menu should always be the bottom of the stack and cannot be popped. `getCurrentMenu()` returns the top of the stack, which is the current menu.
+
+Integrated with the input context handling routine, the current menu is displayed (`printCurrentMenu()`) along with a prompt which tels the user to select one of the available menu options. If the value inputed is incorect, it is ignored and a warning is showed to the user to input a correct selection. This is handled by `processMenuInput()` function.
+
+**Input context handling**\
+The input context is used to identify how the data that is received from serial input should be interpreted. Based on the current input context, the right handler is used to process the input and update the app state (`processInput()` function). The input prompt is displayed in the console to let the user know what data does the program expect (`printInputPrompt()`). When the context input is `MENU_SELECTION`, the current menu is also displayed. The input contexts defined in this program are:
+
+- `MENU_SELECTION` (menu navigation)
+- `SAMPLING_RATE` (configure the sampling rate)
+- `ULTRASONIC_THRESHOLD` (configure ultrasonic sensor min alert threshold)
+- `LDR_THERSHOLD` (configure the LDR sensor min alert threshold)
+- `RESET_ULTRASONIC_LOGS_CONFIRM` (confirm the reset of ultrasonic data logs)
+- `RESET_LDR_LOGS_CONFIRM` (confirm the reset of LDR data logs)
+- `READINGS_DISPLAY` (used to exit the continuous display of the current sensor readings)
+- `RGB_LED_VALUE` (configure the RGB LED manual color).
+
+Data input is implemented using an input buffer. The characters received from the serial input are appended to the input buffer until either a newline character (\n or \r) is reaced
+or the buffer reaches its maximum length. When that happens, the current input context handler is executed to process the input buffer. This logic is handled by `receiveSerial()` function. There is also the `inputParseInt()` utility function, which helps to get an int value from input buffer.
+
+The current input context is changed by a menu option with the `CHANGE_INPUT_CONTEXT` action, specifing in the data argument the index of the new input context. When the input context is resolved (the user entered valid input), the current input context returns to `MENU_SELECTION`.
+
+**Data logging**\
+The `SensorLog` structure is used to simplify the process of logging sensor data with cycling current index (when the maximum length of data vector is reached, the index starts again from 0 and replaces older values). It has 3 methods:
+
+- `logValue(int value)` (which adds a new value to the log)
+- `getLog(int index)` (which gets a logged value, index 0 meaning the oldest logged value)
+- `resetLogs()` (the logged data is reset)
+
+This class is used to store ultrasonic and LDR sensors data, and reset the logs independently from one another.
+
+**Input handlers**\
+The input handlers: `processSamplingRateInput()`, `processUltrasonicThresholdInput()`, `processLDRThresholdInput()`, `resetUltrasonicLogs()`, `resetLDRLogs()` and `processRgbLedValueInput()`, process the input vector and validate the data received. If it is correct, their action is executed (i.e. the new configuration is updated and saved on _EEPROM_, or the logged data is reset). If the input validation fails, the input context handler is notified and an error message is displayed requesting valid input.
+
+**RGB input**\
+The RGB color for the LED is read as a string in the hex format (for example `#ffffff` is _white_ and represents the values `255, 255, 255` for the Red, Green and Blue channels). The RGB value input handler parses the input buffer and checks if the input is valid and converts from string into a long variable. When aplying the values to the LED or when displaying the current setting, the utility functions: `getRedValue()`, `getGreenValue()`, `getBlueValue()`, use bitwise operations to extract the value for their respective color channel.
+
+The pins for LED control are PWM pins in order to have gradual control over the intensity of each color channel.
+
+**Action handlers**\
+Besides the `CHANGE_MENU`, `MENU_BACK` and `CHANGE_INPUT_CONTEXT` actions, there also are basic actions that display the data requested, implemented in the `printSensorSettings()` and `printLastLoggedData()` functions.
+
+**Sensor reading and LED control**\
+The `processSensors()` function, along with `readUltrasonicValue()` and `readLDRValue()` reads the values currently detected by the sensors and logs them. If the values are below the thresholds, a message is displayed for the user. `readUltrasonicValue()` uses the constant for the speed of sound to compute the distance based on the time it takes for the sensor to receive the echo of its pulse. The LDR sensor is a dynamic resistor, and its value is proportional to the ammount of light it receives.
+
+
+### Implementation demo
+**Circuit implementation**
+![Homework 05 circuit implementation](doc/homework05/circuit_implementation.jpg)
+
+**Video demo**
+[https://www.youtube.com/watch?v=rAqru-DwZEE](https://www.youtube.com/watch?v=rAqru-DwZEE)
