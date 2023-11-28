@@ -12,7 +12,7 @@
 class DisplayMatrix {
   // Display configuration
   static const unsigned long playerBlinkInterval = 1000;
-  static const unsigned long bombBlinkInterval = 300;
+  static const unsigned long bombBlinkInterval = 200;
   static const int matrixSize = 8;
 
   // LED control state

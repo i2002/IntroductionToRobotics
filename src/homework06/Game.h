@@ -44,7 +44,7 @@ class Game {
   static const int matrixHeight = 8;
   static const int matrixWidth = 8;
   static const int maxBombs = 5;
-  static const unsigned long bombExplodeTime = 3000;
+  static const unsigned long bombExplodeTime = 2000;
 
   // Player movement matrix
   static const int playerMovementMatrix[4][2];
