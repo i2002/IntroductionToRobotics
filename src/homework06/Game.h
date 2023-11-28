@@ -100,14 +100,6 @@ public:
   CellType getCellType(Position pos);
 
   /**
-   * @brief Set the tyep of a game matrix cell.
-   * 
-   * @param pos the position in game matrix
-   * @param type the new type of the cell
-   */
-  void setCellType(Position pos, CellType type);
-
-  /**
    * @brief Get the game state.
    * 
    * @return GameState
@@ -115,6 +107,14 @@ public:
   GameState getState();
 
 private:
+  /**
+   * @brief Set the tyep of a game matrix cell.
+   * 
+   * @param pos the position in game matrix
+   * @param type the new type of the cell
+   */
+  void setCellType(Position pos, CellType type);
+
   /**
    * @brief Randomly initialize walls in game matrix and initial player position.
    */
