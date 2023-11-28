@@ -16,6 +16,7 @@ Each homework includes all the code and schematics used in solving the homework,
 - [Homework 3: 7 segment display drawing](#homework-3-7-segment-display-drawing)
 - [Homework 4: Stopwatch timer](#homework-4-stopwatch-timer)
 - [Homework 5: Pseudo-smart environment monitor and logger](#homework-5-pseudo-smart-environment-monitor-and-logger)
+- [Homework 6: Mini Matrix Game](#homework-6-mini-matrix-game)
 
 
 ## Homework 1: RGB LED
@@ -277,3 +278,102 @@ The `processSensors()` function, along with `readUltrasonicValue()` and `readLDR
 
 **Video demo**
 [https://www.youtube.com/watch?v=rAqru-DwZEE](https://www.youtube.com/watch?v=rAqru-DwZEE)
+
+
+## Homework 6: Mini Matrix Game
+
+### Task description
+
+The objective is to implement a simple bomber-like game using the matrix display to show game state and the joystick to move the player around. The game matrix contains empty cells (off LEDs), walls (always on LEDs), the current player position (slowly blinking LED) and the bomb (rapidly blinking LED).
+
+The goal of the game is to destroy all the walls by placing bombs. When the bomb goes off, the walls on the same row or column with the bomb are destroyed. If the player stays in the range of the bomb, loses the game. If all walls have been destroyed, the player wins the game.
+
+### Components used
+
+- Arduino UNO
+- a 8x8 LED matrix display
+- a joystick
+- a button
+- a MAX7219 LED driver IC
+- a 10k ohm resistor
+- connection wires
+
+### Circuit diagram
+
+The diagram of the circuit is the following:
+
+![Homework 06 circuit diagram](doc/homework06/circuit_diagram.png)
+
+The _MAX7219_ circuit (which is a LED driver) is used to manage the state of the LED matrix more easily. It manages internally the multiplexing and displaying each LED at a time at high refresh rate.
+
+### Code description
+
+The code can be found in `src/homework06/`. The code has been split into multiple classes for each module.
+
+The `Joystick` and `Button` classes handle the _input_ processing for the joystick movement and trigger button press. The `DisplayMatrix` class handles the functionality to _output_ the game state to the matrix display and display static images. The `Game` class manages the game logic and actions. The utility function `delayedExec()` and constant definitions for static images are defined in their own header files.
+
+By having modularized code, it is easier to follow and understand the program logic and it makes the code easier to extend.
+
+**Joystick module**\
+The code for the joystick module has been adapted from the [3rd homework](#homework-3-7-segment-display-drawing). It provides the following public members:
+
+- `Joystick(const byte joystickPinX, const byte joystickPinY, const bool invertX, const bool intertY)`: constructor which configures the used pins and if the directions on X or Y axes are inverted
+- `void setup()`: sets up the input pins (to be called in the main program `setup()` function)
+- `bool processMovement()`: updates the current joystick position and returns true if the position changed
+- `JoystickPosition getState()`: provides the current joystick position
+
+**Button module**\
+This module helps adding debounce to a _INPUT\_PULLUP_ button. It provides the following public members:
+
+- `Button(const byte buttonPin)`: constructor which configures the button pin
+- `void setup()`: sets up the input pin (to be called in the main program `setup()` function)
+- `bool buttonPressed()`: returns true if the debounced state of the button just changed to pressed
+
+**DisplayMatrix module**\
+This module uses the [LedControl](https://wayoda.github.io/LedControl/) library to interface with the _MAX7219_ integrated circuit. It can either output the game state to the matrix display, or display static images (when a game is not running). It also keeps track of the blink states for bomb and player positions. It provides the following public members:
+
+- `DisplayMatrix(const byte dinPin, const byte clockPin, const byte loadPin)`: constructor which configures the display pins
+- `void setup()`: sets up the display (to be called in the main program `setup()` function)
+- `void updateGameState(const Game &game)`: updates the display based on the current game state
+- `void displayImage(uint64_t image)`: display static image
+- `void resetPlayerBlink()` and `void resetBombBlink()`: reset the blink states
+
+**Game module**\
+This module manages the actual game logic. It contains the game logical matrix (which has the information about wall positions) and keeps track of the player and bomb positions.
+The game state is updated by player movement and bomb placement actions. Random map generation and collision detection are also handled internally by this class. It provides the following public members:
+
+- `void startGame()`: starts a new game with a random placement of walls and the player
+- `bool playerMove(JoystickPosition pos)`: action to move the player in the direction indicated by joystick (returns true if the movement is possible)
+- `void placeBomb(unsigned long time)`: action to place bomb on current player location
+- `bool bombTick(unsigned long time)`: check if bomb timer expired, if so the bomb is exploded and state is updated (returns true if the bomb exploded)
+- `CellType getCellType(Position pos)`: get information about a cell in the game map (used for displaying the game state to the LED matrix display)
+- `GameState getState()`: get current game state
+
+Besides the `Game` class, this module also defines helper types such as:
+
+- `Position`: this struct keeps information about the row and column in the game matrix
+- `CellType`: enum for the kinds of cells that can exist in the game matrix (_EMPTY_, _WALL_, _BOMB_ or _PLAYER_)
+- `GameState`: enum for the state of the game (_NOT\_STARTED_, _RUNNING_, _LOST_, _WON_)
+  Initially the state is _NOT\_STARTED_ and changes to _RUNNING_ after the `startGame()` method is called. When a bomb explodes, the game state can change into _LOST_ or _WON_.
+
+
+**Main program**\
+The main program contains only the constant definitions for board pins and the module objects.
+
+The `setup()` function calls the `setup()` methods for all modules.
+
+The `loop()` function handles the higher level app logic based on current game state.
+
+Static images are outputed to the display at the program start (the play icon) and after the game ends (smiley face if the player won, or sad face if the player lost).
+
+After the game finishes, the player can choose to play again by pressing the trigger button.
+
+
+### Implementation demo
+**Circuit implementation**
+
+![Homework 06 circuit implementation](doc/homework06/circuit_implementation.jpg)
+
+**Video demo**
+
+[https://www.youtube.com/watch?v=Z9CGPHo4Sw4](https://www.youtube.com/watch?v=Z9CGPHo4Sw4)
