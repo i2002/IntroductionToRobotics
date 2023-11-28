@@ -75,7 +75,7 @@ void Game::generateMatrix() {
     Position wallPos = randomPos();
 
     // do not generate walls over player
-    if (playerPos == wallPos) {
+    if (abs(playerPos.x - wallPos.x) < 2 && abs(playerPos.y - wallPos.y) < 2) {
       i--;
       continue;
     }
