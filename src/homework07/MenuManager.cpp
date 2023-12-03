@@ -7,10 +7,6 @@ void menuPreviewHandler(byte option) {
   menuManager.menuPreview(option);
 }
 
-const char* menuLabelHandler(byte option) {
-  return menuManager.menuLabel(option);
-}
-
 void menuActionHandler(byte option) {
   menuManager.menuAction(option);
 }
@@ -54,15 +50,8 @@ void MenuManager::menuPreview(byte option) {
     return;
   }
 
-  gameDisp.displayImage(menuManager.getOption(option).image);
-}
-
-const char* MenuManager::menuLabel(byte option) {
-  if (empty()) {
-    return nullptr;
-  }
-
-  return menuManager.getOption(option).name;
+  gameDisp.displayImage(getOption(option).image);
+  statusDisp.printMenuOption(getOption(option).name);
 }
 
 bool MenuManager::empty() {
@@ -75,7 +64,7 @@ void MenuManager::setupMenuDisplay() {
   }
 
   const MenuStackItem& currentMenu = getCurrentMenu();
-  inputManager.setupSelectInput(currentMenu.menu->name, menuPreviewHandler, menuActionHandler, menuLabelHandler, currentMenu.menu->lenOptions, currentMenu.savedPos);
+  inputManager.setupSelectInput(currentMenu.menu->name, menuPreviewHandler, menuActionHandler, currentMenu.menu->lenOptions, currentMenu.savedPos);
 }
 
 MenuStackItem& MenuManager::getCurrentMenu() {

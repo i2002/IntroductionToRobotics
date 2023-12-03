@@ -71,23 +71,18 @@ void StatusDisplay::setup() {
 
 void StatusDisplay::printTitle(const char *name) {
   resetDisplay();
-  int start = (16 - strlen(name)) / 2;
+  byte start = (16 - strlen(name)) / 2;
   lcd.setCursor(start, 0);
   lcd.print(name);
 }
 
-void StatusDisplay::printMenuOption(const char *name, bool canPrev, bool canNext) {
+void StatusDisplay::printMenuOption(const char *name) {
   lcd.setCursor(0, 1);
-
-  lcd.write('>');
-  lcd.write(' ');
-  lcd.print(name);
-
-  for (int i = strlen(name); i < 13; i++) {
-    lcd.write(' ');
-  }
-
-  printMenuArrow(canPrev, canNext);
+  byte pos = 0;
+  pos += lcd.write('>');
+  pos += lcd.write(' ');
+  pos += lcd.print(name);
+  printBlank(pos, 15);
 }
 
 void StatusDisplay::printRange(int step) {
@@ -96,10 +91,8 @@ void StatusDisplay::printRange(int step) {
   for (int i = 0; i < step; i++) {
     lcd.write(0b11111111);
   }
-  for (int i = step; i < 14; i++) {
-    lcd.write(' ');
-  }
 
+  printBlank(step, 15);
   lcd.write(RIGHT_ARROW);
 }
 
@@ -113,6 +106,15 @@ void StatusDisplay::printScreen(const Screen screen)  {
   if (screen[1]) {
     lcd.print(screen[1]);
   }
+}
+
+void StatusDisplay::printLeaderboard(byte place, byte score) {
+  lcd.setCursor(0, 1);
+  byte pos = 0;
+  pos += lcd.print(place);
+  pos += lcd.write('.');
+  pos += lcd.print(score);
+  printBlank(pos, 15);
 }
 
 void StatusDisplay::setupGameInfo(int level) {
@@ -132,6 +134,7 @@ void StatusDisplay::updatePoints(int points) {
 }
 
 void StatusDisplay::printMenuArrow(bool canPrev, bool canNext) {
+  lcd.setCursor(15, 1);
   if (canPrev && canNext) {
     lcd.write(UP_DOWN_ARROW);
   } else if (canPrev) {
@@ -146,4 +149,11 @@ void StatusDisplay::printMenuArrow(bool canPrev, bool canNext) {
 void StatusDisplay::resetDisplay() {
   lcd.clear();
   lcd.home();
+}
+
+void StatusDisplay::printBlank(byte from, byte to, byte line) {
+  lcd.setCursor(from, line);
+  for (byte i = from; i < to; i++) {
+    lcd.write(' ');
+  }
 }

@@ -10,9 +10,9 @@ void InputManager::setupRangeInput(const char* title, InputCallback preview, Inp
   currentInput = new (inputsBuf) RangeInput{title, preview, action, initialValue};
 }
 
-void InputManager::setupSelectInput(const char* title, InputCallback preview, InputCallback action, SelectLabelCallback labelCallback, byte optionsSize, byte initialSelection) {
+void InputManager::setupSelectInput(const char* title, InputCallback preview, InputCallback action, byte optionsSize, byte initialSelection) {
   destroyInputObject();
-  currentInput = new (inputsBuf) SelectInput{title, preview, action, labelCallback, optionsSize, initialSelection};
+  currentInput = new (inputsBuf) SelectInput{title, preview, action, optionsSize, initialSelection};
 }
 
 void InputManager::processMovement(JoystickPosition pos) {

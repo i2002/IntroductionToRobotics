@@ -13,7 +13,7 @@ public:
 
   void setupRangeInput(const char* title, InputCallback preview, InputCallback action, byte initialValue = 0);
 
-  void setupSelectInput(const char* title, InputCallback preview, InputCallback action, SelectLabelCallback labelCallback, byte optionsSize, byte initialSelection = 0);
+  void setupSelectInput(const char* title, InputCallback preview, InputCallback action, byte optionsSize, byte initialSelection = 0);
 
   void processMovement(JoystickPosition pos);
 

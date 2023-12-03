@@ -22,16 +22,18 @@ public:
 
   void setup();
   void printTitle(const char *name);
-  void printMenuOption(const char *name, bool canPrev, bool canNext);
+  void printMenuOption(const char *name);
   void printRange(int step);
   void printScreen(const Screen screen);
+  void printLeaderboard(byte place, byte score);
+  void printMenuArrow(bool canPrev, bool canNext);
 
   void setupGameInfo(int level);
   void updatePoints(int points);
 
 private:
   void resetDisplay();
-  void printMenuArrow(bool canPrev, bool canNext);
+  void printBlank(byte from = 0, byte to = 16, byte line = 1);
 };
 
 #endif // STATUS_DISPLAY_H

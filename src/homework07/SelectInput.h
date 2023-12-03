@@ -5,17 +5,14 @@
 
 extern StatusDisplay statusDisp;
 
-typedef const char* (*SelectLabelCallback)(byte);
-
 struct SelectInput : Input {
   byte optionsSize;
   byte currentOption;
-  SelectLabelCallback labelCallback;
   InputCallback preview;
   InputCallback action;
 
 public:
-  SelectInput(const char *title, InputCallback _preview, InputCallback _action, SelectLabelCallback _labelCallback, byte _optionsSize, byte initialSelection);
+  SelectInput(const char *title, InputCallback _preview, InputCallback _action, byte _optionsSize, byte initialSelection);
   ~SelectInput() = default;
 
   void processMovement(JoystickPosition pos);

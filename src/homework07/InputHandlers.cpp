@@ -15,39 +15,28 @@ void brightnessAction(byte step) {
   menuManager.resumeMenu();
 }
 
+void soundSettingPreview(byte val) {
+  statusDisp.printMenuOption(val == 0 ? "Off" : "On");
+}
+
 void soundSettingAction(byte val) {
   soundSettingStore.updateValue((bool)val);
   menuManager.resumeMenu();
 }
 
-const char* soundSettingLabel(byte val) {
-  Serial.println(val);
-  return val == 0 ? "Off" : "On";
+void leaderboardPreview(byte val) {
+  if (val == leaderboardSize) {
+    gameDisp.displayImage(backImage);
+    statusDisp.printMenuOption("Back");
+  } else {
+    gameDisp.displayImage(leaderboardImage);
+    statusDisp.printLeaderboard(val + 1, leaderboardStore.readValue(val));
+  }
 }
 
 void leaderboardAction(byte val) {
   if (val == leaderboardSize) {
     menuManager.resumeMenu();
-  }
-}
-
-void leaderboardPreview(byte val) {
-  if (val == leaderboardSize) {
-    gameDisp.displayImage(backImage);
-  } else {
-    gameDisp.displayImage(leaderboardImage);
-  }
-}
-
-const char *leaderboardLabel(byte val) {
-  if (val == leaderboardSize) {
-    return "Back";
-  } else {
-    byte highscore = leaderboardStore.readValue(val);
-    labelBuf[0] = val + 1 + '0';
-    labelBuf[1] = '.';
-    itoa(highscore, labelBuf + 2, 10);
-    return labelBuf;
   }
 }
 
@@ -57,9 +46,9 @@ void setupInput(InputType type) {
       return inputManager.setupRangeInput("Brightness", brightnessPreview, brightnessAction, brightnessStore.readValue() / brightnessStep);
 
     case InputType::SOUND_SETTING:
-      return inputManager.setupSelectInput("Sounds", nullptr, soundSettingAction, soundSettingLabel, 2, soundSettingStore.readValue());
+      return inputManager.setupSelectInput("Sounds", soundSettingPreview, soundSettingAction, 2, soundSettingStore.readValue());
 
     case InputType::LEADERBOARD_VIEW:
-      return inputManager.setupSelectInput("Leaderboard", leaderboardPreview, leaderboardAction, leaderboardLabel, leaderboardSize + 1, 0);
+      return inputManager.setupSelectInput("Leaderboard", leaderboardPreview, leaderboardAction, leaderboardSize + 1, 0);
   }
 }

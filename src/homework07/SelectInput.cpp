@@ -1,9 +1,8 @@
 #include "SelectInput.h"
 
-SelectInput::SelectInput(const char *title, InputCallback _preview, InputCallback _action, SelectLabelCallback _labelCallback, byte _optionsSize, byte initialSelection) {
+SelectInput::SelectInput(const char *title, InputCallback _preview, InputCallback _action, byte _optionsSize, byte initialSelection) {
   preview = _preview;
   action = _action;
-  labelCallback = _labelCallback;
   optionsSize = _optionsSize;
   currentOption = initialSelection;
 
@@ -45,13 +44,10 @@ void SelectInput::processActionBtn() {
 }
 
 void SelectInput::printCurrentOption() {
-  if (labelCallback) {
-    statusDisp.printMenuOption(labelCallback(currentOption), canPrev(), canNext());
-  }
-
   if (preview) {
     preview(currentOption);
   }
+  statusDisp.printMenuArrow(canPrev(), canNext());
 }
 
 bool SelectInput::canNext() {
