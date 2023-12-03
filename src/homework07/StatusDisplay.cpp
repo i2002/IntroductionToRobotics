@@ -60,7 +60,7 @@ byte rightArrow[8] = {
 
 void StatusDisplay::setup() {
   lcd.begin(16, 2);
-  analogWrite(pinA, brightnessStore.readValue());
+  analogWrite(pinA, lcdBrightnessStore.readValue());
 
   lcd.createChar(UP_DOWN_ARROW, upDownArrow);
   lcd.createChar(UP_ARROW, upArrow);
@@ -87,12 +87,13 @@ void StatusDisplay::printMenuOption(const char *name) {
 
 void StatusDisplay::printRange(int step) {
   lcd.setCursor(0, 1);
-  lcd.write(LEFT_ARROW);
+  byte pos = 0;
+  pos += lcd.write(LEFT_ARROW);
   for (int i = 0; i < step; i++) {
-    lcd.write(0b11111111);
+    pos += lcd.write(0b11111111);
   }
 
-  printBlank(step, 15);
+  printBlank(pos, 15);
   lcd.write(RIGHT_ARROW);
 }
 

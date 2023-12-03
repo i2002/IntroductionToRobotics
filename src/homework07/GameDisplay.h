@@ -24,7 +24,6 @@ class GameDisplay {
   static const int matrixSize = 8;
 
   // LED control state
-  byte matrixBrightness = 2;
   LedControl lc;
 
   // game LED blink states
@@ -47,6 +46,13 @@ public:
    * @brief Initialize LED display.
    */
   void setup();
+
+  /**
+   * @brief 
+   * 
+   * @param value 
+   */
+  void updateIntensity(byte value);
 
   /**
    * @brief Update matrix state to reflect current game state.

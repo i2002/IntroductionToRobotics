@@ -25,7 +25,8 @@ extern InputManager inputManager;
 extern Game game;
 
 // - Data storage
-extern DataStore<byte> brightnessStore;
+extern DataStore<byte> lcdBrightnessStore;
+extern DataStore<byte> matrixBrightnessStore;
 extern DataStore<bool> soundSettingStore;
 extern DataStore<byte, leaderboardSize> leaderboardStore;
 

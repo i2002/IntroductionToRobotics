@@ -18,7 +18,8 @@ const MenuOption mainMenuOptions[] = {
 };
 
 const MenuOption submenuOptions[] = {
-  { "Brightness", brightnessImage, InputType::BRIGHTNESS_SETTING },
+  { "LCD Light", lcdBrightnessImage, InputType::LCD_BRIGHTNESS_SETTING },
+  { "Matrix Light", matrixBrightnessImage, InputType::MATRIX_BRIGHTNESS_SETTING },
   { "Sounds", soundImage, InputType::SOUND_SETTING },
   { "Back", backImage, MenuActionType::MENU_BACK }
 };

@@ -12,7 +12,7 @@ RangeInput::RangeInput(const char *title, InputCallback _preview, InputCallback 
 void RangeInput::processMovement(JoystickPosition pos) {
   if (pos == JoystickPosition::LEFT && value > 0) {
     value--;
-  } else if (pos == JoystickPosition::RIGHT && value <= maxSteps) {
+  } else if (pos == JoystickPosition::RIGHT && value < maxSteps) {
     value++;
   }
 

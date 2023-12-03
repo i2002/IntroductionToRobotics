@@ -6,12 +6,22 @@ const byte brightnessStep = 255 / RangeInput::maxSteps;
 
 char labelBuf[17];
 
-void brightnessPreview(byte step) {
+void lcdBrightnessPreview(byte step) {
   analogWrite(pinA, step * brightnessStep);
 }
 
-void brightnessAction(byte step) {
-  brightnessStore.updateValue(step * brightnessStep);
+void lcdBrightnessAction(byte step) {
+  lcdBrightnessStore.updateValue(step * brightnessStep);
+  menuManager.resumeMenu();
+}
+
+void matrixBrightnessPreview(byte step) {
+  Serial.println(step);
+  gameDisp.updateIntensity(step);
+}
+
+void matrixBrightnessAction(byte step) {
+  matrixBrightnessStore.updateValue(step);
   menuManager.resumeMenu();
 }
 
@@ -42,8 +52,11 @@ void leaderboardAction(byte val) {
 
 void setupInput(InputType type) {
   switch (type) {
-    case InputType::BRIGHTNESS_SETTING:
-      return inputManager.setupRangeInput("Brightness", brightnessPreview, brightnessAction, brightnessStore.readValue() / brightnessStep);
+    case InputType::LCD_BRIGHTNESS_SETTING:
+      return inputManager.setupRangeInput("LCD Brightness", lcdBrightnessPreview, lcdBrightnessAction, lcdBrightnessStore.readValue() / brightnessStep);
+
+    case InputType::MATRIX_BRIGHTNESS_SETTING:
+      return inputManager.setupRangeInput("Matrix Brightness", matrixBrightnessPreview, matrixBrightnessAction, matrixBrightnessStore.readValue());
 
     case InputType::SOUND_SETTING:
       return inputManager.setupSelectInput("Sounds", soundSettingPreview, soundSettingAction, 2, soundSettingStore.readValue());

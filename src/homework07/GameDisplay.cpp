@@ -1,10 +1,15 @@
 #include "GameDisplay.h"
 #include "utils.h"
+#include "context.h"
 
 void GameDisplay::setup() {
   lc.shutdown(0, false);
-  lc.setIntensity(0, matrixBrightness);
+  lc.setIntensity(0, matrixBrightnessStore.readValue());
   lc.clearDisplay(0);
+}
+
+void GameDisplay::updateIntensity(byte value) {
+  lc.setIntensity(0, value);
 }
 
 void GameDisplay::updateGameState(const Game &game) {
