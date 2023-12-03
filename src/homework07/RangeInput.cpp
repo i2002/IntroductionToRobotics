@@ -1,7 +1,7 @@
 #include "RangeInput.h"
 
 RangeInput::RangeInput(const char *title, InputCallback _preview, InputCallback _action, byte initialValue) {
-  statusDisp.setupMenu(title);
+  statusDisp.printTitle(title);
   statusDisp.printRange(initialValue);
 
   preview = _preview;

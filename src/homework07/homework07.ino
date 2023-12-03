@@ -2,6 +2,7 @@
 #include "config.h"
 #include "context.h"
 #include "resources/matrixImages.h"
+#include "resources/displayScreens.h"
 #include "resources/menuDefinitions.h"
 
 
@@ -20,6 +21,8 @@ Game game;
 
 AppState appState = AppState::MAIN_NAVIGATION;
 
+const int startupDelay = 3000;
+
 void setup() {
   Serial.begin(115200);
   randomSeed(analogRead(A2));
@@ -30,14 +33,34 @@ void setup() {
   gameDisp.setup();
   statusDisp.setup();
 
-  changeState(AppState::MAIN_NAVIGATION);  
+  changeState(AppState::STARTUP);  
 }
 
 void loop() {
-  if (appState == AppState::GAME_RUNNING)   {
-    gameRuntime();
-  } else {
-    uiNavigationRuntime();
+  switch (appState) {
+    case AppState::STARTUP:
+      if (millis() > startupDelay) {
+        changeState(AppState::MAIN_NAVIGATION);
+      }
+      break;
+
+    case AppState::MAIN_NAVIGATION:
+      uiNavigationRuntime();
+      break;
+
+    case AppState::GAME_RUNNING:
+      gameRuntime();
+      break;
+
+    case AppState::SCORE_REVIEW:
+      if (triggerBtn.buttonPressed()) {
+        changeState(AppState::ENDED);
+      }
+      break;
+
+    case AppState::ENDED:
+      changeState(AppState::MAIN_NAVIGATION);
+      break;
   }
 }
 
@@ -63,14 +86,10 @@ inline void gameRuntime() {
     gameDisp.resetBombBlink();
   }
 
-  if (game.bombTick(millis())) {
-    if (game.getState() == GameState::LOST) {
-      changeState(AppState::GAME_LOST);
-      return;
-    } else if (game.getState() == GameState::WON) {
-      changeState(AppState::GAME_WON);
-      return;
-    }
+  bool exploded = game.bombTick(millis());
+  if (exploded && game.getState() != GameState::RUNNING) {
+    changeState(AppState::SCORE_REVIEW);
+    return;
   }
 
   gameDisp.updateGameState(game);
@@ -78,6 +97,10 @@ inline void gameRuntime() {
 
 void changeState(AppState newState) {
   switch (newState) {
+    case AppState::STARTUP:
+      // setup delay 1000 ms
+      statusDisp.printScreen(welcomeScreen);
+      break;
     case AppState::MAIN_NAVIGATION:
       menuManager.pushMenu(getMenu(AppMenu::MAIN_MENU));
       break;
@@ -86,17 +109,17 @@ void changeState(AppState newState) {
       game.startGame();
       break;
 
-    case AppState::GAME_LOST:
-      gameDisp.displayImage(lostGameImage);
-      statusDisp.printMessage("You lost :(");
-      break;
-
-    case AppState::GAME_WON:
-      gameDisp.displayImage(wonGameImage);
-      statusDisp.printMessage("You won :)");
-      break;
-
-    default:
+    case AppState::SCORE_REVIEW:
+      if (game.getState() == GameState::LOST) {
+        gameDisp.displayImage(lostGameImage);
+        statusDisp.printScreen(lostGameScreen);
+      } else {
+        gameDisp.displayImage(wonGameImage);
+        statusDisp.printScreen(wonGameScreen);
+        statusDisp.updatePoints(game.getPoints());
+      }
+    case AppState::ENDED:
+      // changeState(AppState::STARTUP);
       break;
   }
   appState = newState;

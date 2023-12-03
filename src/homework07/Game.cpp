@@ -70,6 +70,10 @@ GameState Game::getState() {
   return gameState;
 }
 
+int Game::getPoints() {
+  return points;
+}
+
 void Game::generateMatrix() {
   int wallsNr = random(0.5 * matrixHeight * matrixWidth, 0.75 * matrixHeight * matrixWidth + 1);
   playerPos = randomPos();

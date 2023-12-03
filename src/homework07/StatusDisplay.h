@@ -12,6 +12,8 @@ const byte DOWN_ARROW = 2;
 const byte LEFT_ARROW = 3;
 const byte RIGHT_ARROW = 4;
 
+typedef const char* (Screen)[2];
+
 class StatusDisplay {
   byte matrixBrightness = 2;
   LiquidCrystal lcd;
@@ -20,27 +22,13 @@ public:
   StatusDisplay() : lcd{rs, en, d4, d5, d6, d7} {}
 
   void setup();
-  void setupMenu(const char *name);
+  void printTitle(const char *name);
   void printMenuOption(const char *name, bool canPrev, bool canNext);
-  void printMessage(const char *message) {
-    resetDisplay();
-    lcd.print(message);
-  }
+  void printRange(int step);
+  void printScreen(const Screen screen);
 
   void setupGameInfo(int level);
   void updatePoints(int points);
-  void printRange(int steps) {
-    lcd.setCursor(0, 1);
-    lcd.write(LEFT_ARROW);
-    for (int i = 0; i < steps; i++) {
-      lcd.write(0b11111111);
-    }
-    for (int i = steps; i < 14; i++) {
-      lcd.write(' ');
-    }
-
-    lcd.write(RIGHT_ARROW);
-  }
 
 private:
   void resetDisplay();

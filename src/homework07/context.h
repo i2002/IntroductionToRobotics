@@ -27,8 +27,8 @@ enum class AppState {
   STARTUP,
   MAIN_NAVIGATION,
   GAME_RUNNING,
-  GAME_LOST,
-  GAME_WON
+  SCORE_REVIEW,
+  ENDED
 };
 
 void changeState(AppState newState);

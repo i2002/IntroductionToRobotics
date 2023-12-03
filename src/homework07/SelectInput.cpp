@@ -7,7 +7,7 @@ SelectInput::SelectInput(const char *title, InputCallback _preview, InputCallbac
   optionsSize = _optionsSize;
   currentOption = initialSelection;
 
-  statusDisp.setupMenu(title);
+  statusDisp.printTitle(title);
   printCurrentOption();
 }
 
@@ -36,10 +36,6 @@ void SelectInput::processMovement(JoystickPosition pos) {
   }
 
   printCurrentOption();
-
-  if (preview) {
-    preview(currentOption);
-  }
 }
 
 void SelectInput::processActionBtn() {
@@ -51,6 +47,10 @@ void SelectInput::processActionBtn() {
 void SelectInput::printCurrentOption() {
   if (labelCallback) {
     statusDisp.printMenuOption(labelCallback(currentOption), canPrev(), canNext());
+  }
+
+  if (preview) {
+    preview(currentOption);
   }
 }
 

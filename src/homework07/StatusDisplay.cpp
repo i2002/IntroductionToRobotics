@@ -68,7 +68,7 @@ void StatusDisplay::setup() {
   lcd.createChar(RIGHT_ARROW, rightArrow);
 }
 
-void StatusDisplay::setupMenu(const char *name) {
+void StatusDisplay::printTitle(const char *name) {
   resetDisplay();
   int start = (16 - strlen(name)) / 2;
   lcd.setCursor(start, 0);
@@ -89,21 +89,29 @@ void StatusDisplay::printMenuOption(const char *name, bool canPrev, bool canNext
   printMenuArrow(canPrev, canNext);
 }
 
-void StatusDisplay::printMenuArrow(bool canPrev, bool canNext) {
-  if (canPrev && canNext) {
-    lcd.write(UP_DOWN_ARROW);
-  } else if (canPrev) {
-    lcd.write(UP_ARROW);
-  } else if (canNext) {
-    lcd.write(DOWN_ARROW);
-  } else {
+void StatusDisplay::printRange(int step) {
+  lcd.setCursor(0, 1);
+  lcd.write(LEFT_ARROW);
+  for (int i = 0; i < step; i++) {
+    lcd.write(0b11111111);
+  }
+  for (int i = step; i < 14; i++) {
     lcd.write(' ');
   }
+
+  lcd.write(RIGHT_ARROW);
 }
 
-void StatusDisplay::resetDisplay() {
-  lcd.clear();
-  lcd.home();
+void StatusDisplay::printScreen(const Screen screen)  {
+  resetDisplay();
+  if (screen[0]) {
+    lcd.print(screen[0]);
+  }
+  lcd.setCursor(0, 1);
+
+  if (screen[1]) {
+    lcd.print(screen[1]);
+  }
 }
 
 void StatusDisplay::setupGameInfo(int level) {
@@ -120,4 +128,21 @@ void StatusDisplay::setupGameInfo(int level) {
 void StatusDisplay::updatePoints(int points) {
   lcd.setCursor(1, 1);
   lcd.print(points);
+}
+
+void StatusDisplay::printMenuArrow(bool canPrev, bool canNext) {
+  if (canPrev && canNext) {
+    lcd.write(UP_DOWN_ARROW);
+  } else if (canPrev) {
+    lcd.write(UP_ARROW);
+  } else if (canNext) {
+    lcd.write(DOWN_ARROW);
+  } else {
+    lcd.write(' ');
+  }
+}
+
+void StatusDisplay::resetDisplay() {
+  lcd.clear();
+  lcd.home();
 }

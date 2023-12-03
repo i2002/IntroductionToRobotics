@@ -107,6 +107,13 @@ public:
    */
   GameState getState();
 
+  /**
+   * @brief Get the current game points
+   * 
+   * @return int 
+   */
+  int getPoints();
+
 private:
   /**
    * @brief Set the tyep of a game matrix cell.
