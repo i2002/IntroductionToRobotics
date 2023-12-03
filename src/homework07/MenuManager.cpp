@@ -1,9 +1,6 @@
 #include "MenuManager.h"
 #include <Arduino.h>
 #include "context.h"
-#include "MenuActionHandlers.h"
-#include "resources/menuDefinitions.h"
-
 
 
 void menuPreviewHandler(byte option) {
@@ -17,6 +14,7 @@ const char* menuLabelHandler(byte option) {
 void menuActionHandler(byte option) {
   menuManager.menuAction(option);
 }
+
 
 void MenuManager::pushMenu(const Menu &menu) {
   menuStack[stackSize].menu = &menu;
@@ -38,13 +36,17 @@ void MenuManager::popMenu() {
   setupMenuDisplay();
 }
 
+void MenuManager::resumeMenu() {
+  setupMenuDisplay();
+}
+
 void MenuManager::menuAction(byte option) {
   if (empty()) {
     return;
   }
 
   getCurrentMenu().savedPos = option;
-  handleMenuAction(getOption(option).getAction(), getOption(option).actionData);
+  getOption(option).action.handleMenuAction();
 }
 
 void MenuManager::menuPreview(byte option) {

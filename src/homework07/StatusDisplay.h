@@ -15,7 +15,6 @@ const byte RIGHT_ARROW = 4;
 typedef const char* (Screen)[2];
 
 class StatusDisplay {
-  byte matrixBrightness = 2;
   LiquidCrystal lcd;
 
 public:

@@ -1,4 +1,5 @@
 #include "StatusDisplay.h"
+#include "context.h"
 
 // custom chars
 uint8_t upDownArrow[8] = {
@@ -59,7 +60,7 @@ byte rightArrow[8] = {
 
 void StatusDisplay::setup() {
   lcd.begin(16, 2);
-  analogWrite(pinA, 100);
+  analogWrite(pinA, brightnessStore.readValue());
 
   lcd.createChar(UP_DOWN_ARROW, upDownArrow);
   lcd.createChar(UP_ARROW, upArrow);

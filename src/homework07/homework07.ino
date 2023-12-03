@@ -19,6 +19,11 @@ MenuManager menuManager;
 InputManager inputManager;
 Game game;
 
+// - Data storage
+DataStore<byte> brightnessStore(2);
+DataStore<bool> soundSettingStore(4);
+DataStore<byte, leaderboardSize> leaderboardStore(10);
+
 AppState appState = AppState::MAIN_NAVIGATION;
 
 const int startupDelay = 3000;
@@ -98,7 +103,6 @@ inline void gameRuntime() {
 void changeState(AppState newState) {
   switch (newState) {
     case AppState::STARTUP:
-      // setup delay 1000 ms
       statusDisp.printScreen(welcomeScreen);
       break;
     case AppState::MAIN_NAVIGATION:

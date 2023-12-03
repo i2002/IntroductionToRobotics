@@ -1,5 +1,6 @@
 #ifndef CONFIG_H
 #define CONFIG_H
+#include <Arduino.h>
 
 const byte rs = 9;
 const byte en = 8;
@@ -17,5 +18,7 @@ const byte clockPin = 11;
 const byte loadPin = 10;
 
 const byte triggerPin = 2;
+
+const int leaderboardSize = 5;
 
 #endif // CONFIG_H

@@ -15,6 +15,7 @@ class MenuManager {
 public:
   void pushMenu(const Menu &menu);
   void popMenu();
+  void resumeMenu();
   void menuPreview(byte option);
   void menuAction(byte option);
   const char *menuLabel(byte option);

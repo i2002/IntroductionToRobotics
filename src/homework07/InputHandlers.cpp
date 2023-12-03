@@ -1,41 +1,65 @@
-// // char buf[16] = "";
-// // int step = 0;
-// int steps = 14;
-// int points = 0;
+#include "InputHandlers.h"
+#include "context.h"
+#include "resources/matrixImages.h"
 
-// void preview(byte step) {
-//   // Serial.println(step);
-//   switch (step) {
-//     case 0:
-//       gameDisp.displayImage(startGameImage);
-//       break;
+const byte brightnessStep = 255 / RangeInput::maxSteps;
 
-//     case 1:
-//       gameDisp.displayImage(settingsImage);
-//       break;
-//   }
-// }
+char labelBuf[17];
 
-// void apply(byte step) {
-//   // Serial.print("Selected value: ");
-//   Serial.println(step);
-//   inputManager.setupRangeInput("Brightness", brightnessPreview, brightnessAction);
-// }
+void brightnessPreview(byte step) {
+  analogWrite(pinA, step * brightnessStep);
+}
 
-// void brightnessPreview(byte step) {
-//   analogWrite(pinA, step * (256 / RangeInput::maxSteps));
-// }
+void brightnessAction(byte step) {
+  brightnessStore.updateValue(step * brightnessStep);
+  menuManager.resumeMenu();
+}
 
-// void brightnessAction(byte step) {
-//   // Serial.print("Selected value: ");
-//   Serial.println(step * (256 / RangeInput::maxSteps));
-// }
+void soundSettingAction(byte val) {
+  soundSettingStore.updateValue((bool)val);
+  menuManager.resumeMenu();
+}
 
-// const char* list[] = {
-//   "Test",
-//   "Second"
-// };
+const char* soundSettingLabel(byte val) {
+  Serial.println(val);
+  return val == 0 ? "Off" : "On";
+}
 
-// const char * label(byte id) {
-//   return list[id];
-// }
+void leaderboardAction(byte val) {
+  if (val == leaderboardSize) {
+    menuManager.resumeMenu();
+  }
+}
+
+void leaderboardPreview(byte val) {
+  if (val == leaderboardSize) {
+    gameDisp.displayImage(backImage);
+  } else {
+    gameDisp.displayImage(leaderboardImage);
+  }
+}
+
+const char *leaderboardLabel(byte val) {
+  if (val == leaderboardSize) {
+    return "Back";
+  } else {
+    byte highscore = leaderboardStore.readValue(val);
+    labelBuf[0] = val + 1 + '0';
+    labelBuf[1] = '.';
+    itoa(highscore, labelBuf + 2, 10);
+    return labelBuf;
+  }
+}
+
+void setupInput(InputType type) {
+  switch (type) {
+    case InputType::BRIGHTNESS_SETTING:
+      return inputManager.setupRangeInput("Brightness", brightnessPreview, brightnessAction, brightnessStore.readValue() / brightnessStep);
+
+    case InputType::SOUND_SETTING:
+      return inputManager.setupSelectInput("Sounds", nullptr, soundSettingAction, soundSettingLabel, 2, soundSettingStore.readValue());
+
+    case InputType::LEADERBOARD_VIEW:
+      return inputManager.setupSelectInput("Leaderboard", leaderboardPreview, leaderboardAction, leaderboardLabel, leaderboardSize + 1, 0);
+  }
+}
