@@ -1,4 +1,5 @@
 #include "StatusDisplay.h"
+#include <EEPROM.h>
 #include "context.h"
 
 // custom chars
@@ -60,13 +61,28 @@ byte rightArrow[8] = {
 
 void StatusDisplay::setup() {
   lcd.begin(16, 2);
-  analogWrite(pinA, lcdBrightnessStore.readValue());
+  setBrightness(getBrightness());
 
   lcd.createChar(UP_DOWN_ARROW, upDownArrow);
   lcd.createChar(UP_ARROW, upArrow);
   lcd.createChar(DOWN_ARROW, downArrow);
   lcd.createChar(LEFT_ARROW, leftArrow);
   lcd.createChar(RIGHT_ARROW, rightArrow);
+}
+
+void StatusDisplay::setBrightness(byte level, bool save) {
+  const byte brightnessStep = 255 / RangeInput::maxSteps;
+  analogWrite(pinA, level * brightnessStep);
+
+  if (save) {
+    EEPROM.put(lcdBrightnessStoreIndex, level);
+  }
+}
+
+byte StatusDisplay::getBrightness() {
+  byte level;
+  EEPROM.get(lcdBrightnessStoreIndex, level);
+  return level;
 }
 
 void StatusDisplay::printTitle(const char *name) {
@@ -119,10 +135,10 @@ void StatusDisplay::printLeaderboard(byte place, byte score) {
 }
 
 void StatusDisplay::printInputChar(byte cursor, char inputChar) {
-  statusDisp.lcd.noCursor();
-  statusDisp.lcd.print(inputChar);
-  statusDisp.lcd.setCursor(cursor, 1);
-  statusDisp.lcd.cursor();
+  lcd.noCursor();
+  lcd.print(inputChar);
+  lcd.setCursor(cursor, 1);
+  lcd.cursor();
 }
 
 void StatusDisplay::printMenuArrow(bool canPrev, bool canNext) {

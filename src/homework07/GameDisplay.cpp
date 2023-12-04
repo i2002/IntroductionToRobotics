@@ -1,15 +1,26 @@
 #include "GameDisplay.h"
+#include <EEPROM.h>
 #include "utils.h"
-#include "context.h"
+
 
 void GameDisplay::setup() {
   lc.shutdown(0, false);
-  lc.setIntensity(0, matrixBrightnessStore.readValue());
+  lc.setIntensity(0, getBrightness());
   lc.clearDisplay(0);
 }
 
-void GameDisplay::updateIntensity(byte value) {
+void GameDisplay::setBrightness(byte value, bool save) {
   lc.setIntensity(0, value);
+  
+  if (save) {
+    EEPROM.put(matrixBrightnessStoreIndex, value);
+  }
+}
+
+byte GameDisplay::getBrightness() {
+  byte brightness;
+  EEPROM.get(matrixBrightnessStoreIndex, brightness);
+  return brightness;
 }
 
 void GameDisplay::updateGameState(const Game &game) {

@@ -9,7 +9,6 @@
 #include "MenuManager.h"
 #include "InputManager.h"
 #include "Game.h"
-#include "DataStore.h"
 
 // - Input components
 extern Joystick joystick;
@@ -23,12 +22,6 @@ extern GameDisplay gameDisp;
 extern MenuManager menuManager;
 extern InputManager inputManager;
 extern Game game;
-
-// - Data storage
-extern DataStore<byte> lcdBrightnessStore;
-extern DataStore<byte> matrixBrightnessStore;
-extern DataStore<bool> soundSettingStore;
-extern DataStore<byte, leaderboardSize> leaderboardStore;
 
 // - App state
 enum class AppState {

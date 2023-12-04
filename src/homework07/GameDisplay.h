@@ -48,11 +48,19 @@ public:
   void setup();
 
   /**
-   * @brief 
+   * @brief Update the display brightness.
    * 
-   * @param value 
+   * @param brightness the display brightness (0 ... 15)
+   * @param save whether to save the brightness to EEPROM or not
    */
-  void updateIntensity(byte value);
+  void setBrightness(byte brightness, bool save = false);
+
+  /**
+   * @brief Get current display brightness.
+   * 
+   * @return byte the current display brightness
+   */
+  byte getBrightness();
 
   /**
    * @brief Update matrix state to reflect current game state.

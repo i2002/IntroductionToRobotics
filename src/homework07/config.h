@@ -21,4 +21,9 @@ const byte triggerPin = 2;
 
 const int leaderboardSize = 5;
 
+const int lcdBrightnessStoreIndex = 2;
+const int matrixBrightnessStoreIndex = 4;
+const int soundSettingStoreIndex = 6;
+const int leaderboardStor = 12;
+
 #endif // CONFIG_H

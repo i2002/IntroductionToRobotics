@@ -19,11 +19,6 @@ MenuManager menuManager;
 InputManager inputManager;
 Game game;
 
-// - Data storage
-DataStore<byte> lcdBrightnessStore(2);
-DataStore<byte> matrixBrightnessStore(4);
-DataStore<bool> soundSettingStore(6);
-DataStore<byte, leaderboardSize> leaderboardStore(12);
 
 AppState appState = AppState::MAIN_NAVIGATION;
 

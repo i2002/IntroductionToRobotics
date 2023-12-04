@@ -21,6 +21,8 @@ public:
   StatusDisplay() : lcd{rs, en, d4, d5, d6, d7} {}
 
   void setup();
+  void setBrightness(byte level, bool save = false);
+  byte getBrightness();
   void printTitle(const char *name);
   void printMenuOption(const char *name);
   void printRange(int step);

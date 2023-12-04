@@ -48,8 +48,6 @@ void TextInput::processMovement(JoystickPosition pos) {
 }
 
 void TextInput::processActionBtn() {
-  statusDisp.lcd.noCursor();
-
   if (action) {
     action(inputBuf);
   }
