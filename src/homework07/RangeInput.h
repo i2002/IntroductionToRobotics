@@ -1,9 +1,6 @@
 #ifndef RANGE_INPUT_H
 #define RANGE_INPUT_H
 #include "Input.h"
-#include "StatusDisplay.h"
-
-extern StatusDisplay statusDisp;
 
 class RangeInput : public Input {
   InputCallback preview = nullptr;

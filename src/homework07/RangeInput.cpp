@@ -1,4 +1,5 @@
 #include "RangeInput.h"
+#include "context.h"
 
 RangeInput::RangeInput(const char *title, InputCallback _preview, InputCallback _action, byte initialValue) {
   statusDisp.printTitle(title);

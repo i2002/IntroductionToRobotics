@@ -3,10 +3,11 @@
 #include "Input.h"
 #include "RangeInput.h"
 #include "SelectInput.h"
+#include "TextInput.h"
 
 class InputManager {
   Input *currentInput = nullptr;
-  char inputsBuf[max(sizeof(RangeInput), sizeof(SelectInput))];
+  char inputsBuf[max(max(sizeof(RangeInput), sizeof(SelectInput)), sizeof(TextInput))];
 
 public:
   ~InputManager();
@@ -14,6 +15,8 @@ public:
   void setupRangeInput(const char* title, InputCallback preview, InputCallback action, byte initialValue = 0);
 
   void setupSelectInput(const char* title, InputCallback preview, InputCallback action, byte optionsSize, byte initialSelection = 0);
+
+  void setupTextInput(const char* title, TextInputCallback preview, TextInputCallback action, char* inputBuf, byte maxLen);
 
   void processMovement(JoystickPosition pos);
 

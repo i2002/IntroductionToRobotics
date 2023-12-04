@@ -15,6 +15,11 @@ void InputManager::setupSelectInput(const char* title, InputCallback preview, In
   currentInput = new (inputsBuf) SelectInput{title, preview, action, optionsSize, initialSelection};
 }
 
+void InputManager::setupTextInput(const char* title, TextInputCallback preview, TextInputCallback action, char* inputBuf, byte maxLen) {
+  destroyInputObject();
+  currentInput = new (inputsBuf) TextInput{title, preview, action, inputBuf, maxLen};
+}
+
 void InputManager::processMovement(JoystickPosition pos) {
   if (currentInput) {
     currentInput->processMovement(pos);

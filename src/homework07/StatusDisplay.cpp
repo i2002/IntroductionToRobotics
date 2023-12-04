@@ -118,6 +118,26 @@ void StatusDisplay::printLeaderboard(byte place, byte score) {
   printBlank(pos, 15);
 }
 
+void StatusDisplay::printInputChar(byte cursor, char inputChar) {
+  statusDisp.lcd.noCursor();
+  statusDisp.lcd.print(inputChar);
+  statusDisp.lcd.setCursor(cursor, 1);
+  statusDisp.lcd.cursor();
+}
+
+void StatusDisplay::printMenuArrow(bool canPrev, bool canNext) {
+  lcd.setCursor(15, 1);
+  if (canPrev && canNext) {
+    lcd.write(UP_DOWN_ARROW);
+  } else if (canPrev) {
+    lcd.write(UP_ARROW);
+  } else if (canNext) {
+    lcd.write(DOWN_ARROW);
+  } else {
+    lcd.write(' ');
+  }
+}
+
 void StatusDisplay::setupGameInfo(int level) {
   resetDisplay();
 
@@ -134,22 +154,10 @@ void StatusDisplay::updatePoints(int points) {
   lcd.print(points);
 }
 
-void StatusDisplay::printMenuArrow(bool canPrev, bool canNext) {
-  lcd.setCursor(15, 1);
-  if (canPrev && canNext) {
-    lcd.write(UP_DOWN_ARROW);
-  } else if (canPrev) {
-    lcd.write(UP_ARROW);
-  } else if (canNext) {
-    lcd.write(DOWN_ARROW);
-  } else {
-    lcd.write(' ');
-  }
-}
-
 void StatusDisplay::resetDisplay() {
   lcd.clear();
   lcd.home();
+  lcd.noCursor();
 }
 
 void StatusDisplay::printBlank(byte from, byte to, byte line) {

@@ -26,7 +26,8 @@ public:
   void printRange(int step);
   void printScreen(const Screen screen);
   void printLeaderboard(byte place, byte score);
-  void printMenuArrow(bool canPrev, bool canNext);
+  void printInputChar(byte cursor, char inputChar);
+  void printMenuArrow(bool canPrev = true, bool canNext = true);
 
   void setupGameInfo(int level);
   void updatePoints(int points);
