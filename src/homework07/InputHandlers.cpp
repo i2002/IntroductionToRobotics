@@ -37,7 +37,8 @@ void leaderboardPreview(byte val) {
     statusDisp.printMenuOption("Back");
   } else {
     gameDisp.displayImage(leaderboardImage);
-    statusDisp.printLeaderboard(val + 1, 0); // FIXME: Leaderboard Manager
+    const HighscoreInfo& highscore = leaderboardManager.getHighscore(val);
+    statusDisp.printLeaderboard(val + 1, highscore.points, highscore.name); // FIXME: Leaderboard Manager
   }
 }
 

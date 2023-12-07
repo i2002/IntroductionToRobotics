@@ -17,6 +17,7 @@ GameDisplay gameDisp;
 // - App state components
 MenuManager menuManager;
 InputManager inputManager;
+LeaderboardManager leaderboardManager;
 Game game;
 
 

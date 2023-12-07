@@ -8,6 +8,7 @@
 #include "GameDisplay.h"
 #include "MenuManager.h"
 #include "InputManager.h"
+#include "LeaderboardManager.h"
 #include "Game.h"
 
 // - Input components
@@ -21,6 +22,7 @@ extern GameDisplay gameDisp;
 // - App state components
 extern MenuManager menuManager;
 extern InputManager inputManager;
+extern LeaderboardManager leaderboardManager;
 extern Game game;
 
 // - App state

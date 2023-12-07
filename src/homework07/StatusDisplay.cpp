@@ -125,11 +125,24 @@ void StatusDisplay::printScreen(const Screen screen)  {
   }
 }
 
-void StatusDisplay::printLeaderboard(byte place, byte score) {
+void StatusDisplay::printLeaderboard(byte place, byte score, const char* name) {
   lcd.setCursor(0, 1);
   byte pos = 0;
+
+  // leaderboard position
   pos += lcd.print(place);
   pos += lcd.write('.');
+
+  // highscore name
+  for (int i = 0; i < leaderboardNameSize; i++) {
+    pos += lcd.print(name[i]);
+  }
+  
+  pos += lcd.print(' ');
+  pos += lcd.print('-');
+  pos += lcd.print(' ');
+
+  // highscore points
   pos += lcd.print(score);
   printBlank(pos, 15);
 }
