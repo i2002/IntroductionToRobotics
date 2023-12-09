@@ -2,17 +2,17 @@
 #define TEXT_INPUT_H
 #include "Input.h"
 
-typedef void (*TextInputCallback)(char*);
+typedef void (*TextInputCallback)(const char*);
 
 class TextInput : public Input {
   TextInputCallback preview = nullptr;
   TextInputCallback action = nullptr;
-  char *inputBuf;
+  char inputBuf[16];
   byte maxLen = 0;
   byte cursor = 0;
 
 public:
-  TextInput(const char *title, TextInputCallback _preview, TextInputCallback _action, char *_inputBuf, byte _maxLen);
+  TextInput(const char *title, TextInputCallback _preview, TextInputCallback _action, byte _maxLen, const char* initialValue);
   ~TextInput() = default;
 
   void processMovement(JoystickPosition pos);
@@ -27,6 +27,8 @@ private:
   char nextChar();
 
   char prevChar();
+
+  bool isValidChar(char c);
 };
 
 #endif // TEXT_INPUT_H

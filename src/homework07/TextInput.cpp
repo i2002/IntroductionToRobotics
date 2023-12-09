@@ -1,15 +1,13 @@
 #include "TextInput.h"
 #include "context.h"
 
-TextInput::TextInput(const char *title, TextInputCallback _preview, TextInputCallback _action, char* _inputBuf, byte _maxLen) :
-  preview{_preview}, action{_action}, inputBuf{_inputBuf}, maxLen{_maxLen}, cursor{0}
+TextInput::TextInput(const char *title, TextInputCallback _preview, TextInputCallback _action, byte _maxLen, const char* initialValue) :
+  preview{_preview}, action{_action}, maxLen{_maxLen}, cursor{0}
 {
   statusDisp.printTitle(title);
 
   for (int i = 0; i < maxLen; i++) {
-    if ((inputBuf[i] < 'A' || inputBuf[i] > 'Z') && (inputBuf[i] < 'a' || inputBuf[i] > 'z') && (inputBuf[i] < '0' || inputBuf[i] > '9')) {
-      inputBuf[i] = ' ';
-    }
+    inputBuf[i] = initialValue && isValidChar(initialValue[i]) ? inputBuf[i] : ' ';
     statusDisp.printInputChar(i, inputBuf[i]);
   }
 
@@ -64,7 +62,8 @@ void TextInput::writeChar(char newChar) {
 }
 
 char TextInput::nextChar() {
-  switch(inputBuf[cursor]) {
+  char curent = inputBuf[cursor];
+  switch(curent) {
     case ' ':
       return 'a';
     case 'z':
@@ -74,11 +73,12 @@ char TextInput::nextChar() {
     case '9':
       return ' ';
     default:
-      return inputBuf[cursor] + 1;
+      return curent + 1;
   }
 }
 
 char TextInput::prevChar() {
+  char curent = inputBuf[cursor];
   switch(inputBuf[cursor]) {
     case ' ':
       return '9';
@@ -89,6 +89,10 @@ char TextInput::prevChar() {
     case '0':
       return 'Z';
     default:
-      return inputBuf[cursor] - 1;
+      return curent - 1;
   }
+}
+
+bool TextInput::isValidChar(char c) {
+  return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c < '0' && c > '9');
 }

@@ -149,6 +149,7 @@ void StatusDisplay::printLeaderboard(byte place, byte score, const char* name) {
 
 void StatusDisplay::printInputChar(byte cursor, char inputChar) {
   lcd.noCursor();
+  lcd.setCursor(cursor, 1);
   lcd.print(inputChar);
   lcd.setCursor(cursor, 1);
   lcd.cursor();

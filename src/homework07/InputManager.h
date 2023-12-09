@@ -16,7 +16,7 @@ public:
 
   void setupSelectInput(const char* title, InputCallback preview, InputCallback action, byte optionsSize, byte initialSelection = 0);
 
-  void setupTextInput(const char* title, TextInputCallback preview, TextInputCallback action, char* inputBuf, byte maxLen);
+  void setupTextInput(const char* title, TextInputCallback preview, TextInputCallback action, byte maxLen, const char* initialValue = nullptr);
 
   void processMovement(JoystickPosition pos);
 
