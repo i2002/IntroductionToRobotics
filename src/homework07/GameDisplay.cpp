@@ -27,7 +27,7 @@ void GameDisplay::updateGameState(const Game &game) {
   for (int row = 0; row < matrixSize; row++) {
     for (int col = 0; col < matrixSize; col++) {
       bool state = false;
-      CellType cell = game.getCellType({col, row});
+      CellType cell = game.getViewportCellType({col, row});
       switch (cell) {
         case CellType::EMPTY:
           state = false;

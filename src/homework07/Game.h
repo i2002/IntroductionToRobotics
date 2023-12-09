@@ -41,8 +41,8 @@ struct Position {
  */
 class Game {
   // Game configuration
-  static const int matrixHeight = 8;
-  static const int matrixWidth = 8;
+  static const int matrixHeight = 16;
+  static const int matrixWidth = 16;
   static const int maxBombs = 5;
   static const unsigned long bombExplodeTime = 2000;
 
@@ -93,12 +93,14 @@ public:
   bool bombTick(unsigned long time);
 
   /**
-   * @brief Get the type of a game matrix cell.
+   * @brief Get the type of a game matrix cell relative to the view offset.
+   * The display matrix is smaller than the game matrix and only a fraction of the game matrix is shown.
+   * The viewport is determined based on current player position.
    * 
-   * @param pos the position in game matrix
+   * @param pos 
    * @return CellType 
    */
-  CellType getCellType(Position pos) const;
+  CellType getViewportCellType(Position pos) const;
 
   /**
    * @brief Get the game state.
@@ -122,6 +124,14 @@ private:
    * @param type the new type of the cell
    */
   void setCellType(Position pos, CellType type);
+
+  /**
+   * @brief Get the type of a game matrix cell.
+   * 
+   * @param pos the position in game matrix
+   * @return CellType 
+   */
+  CellType getCellType(Position pos) const;
 
   /**
    * @brief Randomly initialize walls in game matrix and initial player position.

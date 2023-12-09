@@ -62,6 +62,14 @@ CellType Game::getCellType(Position pos) const {
   return res;
 }
 
+CellType Game::getViewportCellType(Position pos) const {
+  // compute viewport offsets
+  int offsetX = min(max(0, playerPos.x - (GameDisplay::matrixSize / 2)), GameDisplay::matrixSize);
+  int offsetY = min(max(0, playerPos.y - (GameDisplay::matrixSize / 2)), GameDisplay::matrixSize);
+
+  return getCellType({pos.x + offsetX, pos.y + offsetY});
+}
+
 void Game::setCellType(Position pos, CellType type) {
   gameMatrix[pos.y][pos.x] = type;
 }
