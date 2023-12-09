@@ -21,7 +21,6 @@ class GameDisplay {
   // Display configuration
   static const unsigned long playerBlinkInterval = 1000;
   static const unsigned long bombBlinkInterval = 200;
-  static const int matrixSize = 8;
 
   // LED control state
   LedControl lc;
@@ -33,6 +32,8 @@ class GameDisplay {
   unsigned long lastBombBlink = 0;
 
 public:
+  static const int matrixSize = 8;
+
   /**
    * @brief Construct a new Display Matrix object.
    *
