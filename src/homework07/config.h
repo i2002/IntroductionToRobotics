@@ -21,6 +21,7 @@ const byte triggerPin = 2;
 
 const int leaderboardSize = 5;
 const int leaderboardNameSize = 5;
+const int maxHighscorePoints = 255;
 
 const int lcdBrightnessStoreIndex = 2;
 const int matrixBrightnessStoreIndex = 4;

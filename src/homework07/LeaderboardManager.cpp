@@ -4,27 +4,11 @@
 #include "context.h"
 
 
-// void highscoreNameAction(char*) {
-//   leaderboardManager.saveHighscore();
-// }
-
-const HighscoreInfo& LeaderboardManager::getHighscore(int index) {
-  if (index < leaderboardSize) {
-    EEPROM.get(leaderboardStoreIndex + index * sizeof(HighscoreInfo), highscoreBuf);
-  }
-
-  return highscoreBuf;
-}
-
-void LeaderboardManager::writeHighscore(int index) {
-  if (index < leaderboardSize) {
-    EEPROM.put(leaderboardStoreIndex + index * sizeof(HighscoreInfo), highscoreBuf);
-  }
-}
-
 bool LeaderboardManager::isHighscore(byte points) {
-  for (int i = 0; i < 5; i++) {
-    if(points >= getHighscore(i).points) {
+  HighscoreInfo highscore;
+  for (int i = 0; i < leaderboardSize; i++) {
+    readHighscore(i, highscore);
+    if(points >= highscore.points || highscore.points == maxHighscorePoints) {
       return true;
     }
   }
@@ -32,23 +16,43 @@ bool LeaderboardManager::isHighscore(byte points) {
   return false;
 }
 
-// void LeaderboardManager::setLeaderboardName() {
-//   inputManager.setupTextInput("Highscore name", nullptr, highscoreNameAction, highscoreBuf.name, 5);
-//   // return highscoreBuf.name;
-// }
+const HighscoreInfo& LeaderboardManager::getHighscore(int index) {
+  readHighscore(index, highscoreBuf);
+  return highscoreBuf;
+}
 
-void LeaderboardManager::addHighscore(byte points, const char* name) {
+void LeaderboardManager::setPoints(byte points) {
+  highscoreBuf.points = points;
+}
+
+void LeaderboardManager::setName(const char* name) {
+  memcpy(highscoreBuf.name, name, leaderboardNameSize);
+}
+
+void LeaderboardManager::saveHighscore() {
   int indexInsert = leaderboardSize - 1;
+  HighscoreInfo tempHighscore;
   for (int i = indexInsert - 1; i >= 0; i--) {
-    if(points >= getHighscore(i).points) {
-      writeHighscore(i + 1);
+    readHighscore(i, tempHighscore);
+    if(highscoreBuf.points >= tempHighscore.points || tempHighscore.points == maxHighscorePoints) {
+      writeHighscore(i + 1, tempHighscore);
       indexInsert = i;
     } else {
       break;
     }
   }
+  
+  writeHighscore(indexInsert, highscoreBuf);
+}
 
-  highscoreBuf.points = points;
-  memcpy(highscoreBuf.name, name, leaderboardNameSize);
-  writeHighscore(indexInsert);
+void LeaderboardManager::writeHighscore(int index, const HighscoreInfo& highscore) {
+  if (index < leaderboardSize) {
+    EEPROM.put(leaderboardStoreIndex + index * sizeof(HighscoreInfo), highscore);
+  }
+}
+
+void LeaderboardManager::readHighscore(int index, HighscoreInfo& highscore) {
+  if (index < leaderboardSize) {
+    EEPROM.get(leaderboardStoreIndex + index * sizeof(HighscoreInfo), highscore);
+  }
 }

@@ -2,7 +2,6 @@
 #include "context.h"
 #include "resources/matrixImages.h"
 
-char inputBuf[17];
 
 void lcdBrightnessPreview(byte step) {
   statusDisp.setBrightness(step);
@@ -38,7 +37,12 @@ void leaderboardPreview(byte val) {
   } else {
     gameDisp.displayImage(leaderboardImage);
     const HighscoreInfo& highscore = leaderboardManager.getHighscore(val);
-    statusDisp.printLeaderboard(val + 1, highscore.points, highscore.name); // FIXME: Leaderboard Manager
+
+    if (highscore.points == maxHighscorePoints) {
+      statusDisp.printLeaderboard(val + 1, 0, "-----");
+    } else {
+      statusDisp.printLeaderboard(val + 1, highscore.points, highscore.name);
+    }
   }
 }
 
