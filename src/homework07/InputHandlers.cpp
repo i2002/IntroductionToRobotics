@@ -52,6 +52,11 @@ void leaderboardAction(byte val) {
   }
 }
 
+void highscoreNameAction(const char* input) {
+  leaderboardManager.setName(input);
+  changeState(AppState::SAVE_HIGHSCORE);
+}
+
 void setupInput(InputType type) {
   switch (type) {
     case InputType::LCD_BRIGHTNESS_SETTING:
@@ -65,5 +70,8 @@ void setupInput(InputType type) {
 
     case InputType::LEADERBOARD_VIEW:
       return inputManager.setupSelectInput("Leaderboard", leaderboardPreview, leaderboardAction, leaderboardSize + 1, 0);
+
+    case InputType::HIGHSCORE_NAME:
+      return inputManager.setupTextInput("Leaderboard name", nullptr, highscoreNameAction, leaderboardNameSize);
   }
 }

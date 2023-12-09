@@ -47,6 +47,7 @@ void loop() {
       break;
 
     case AppState::MAIN_NAVIGATION:
+    case AppState::SET_HIGHSCORE_NAME:
       uiNavigationRuntime();
       break;
 
@@ -56,8 +57,17 @@ void loop() {
 
     case AppState::SCORE_REVIEW:
       if (triggerBtn.buttonPressed()) {
-        changeState(AppState::ENDED);
+        if (leaderboardManager.isHighscore(game.getPoints())) {
+          leaderboardManager.setPoints(game.getPoints());
+          changeState(AppState::SET_HIGHSCORE_NAME);
+        } else {
+          changeState(AppState::ENDED);
+        }
       }
+      break;
+
+    case AppState::SAVE_HIGHSCORE:
+      changeState(AppState::ENDED);
       break;
 
     case AppState::ENDED:
@@ -119,6 +129,16 @@ void changeState(AppState newState) {
         statusDisp.printScreen(wonGameScreen);
         statusDisp.updatePoints(game.getPoints());
       }
+      break;
+
+    case AppState::SET_HIGHSCORE_NAME:
+      setupInput(InputType::HIGHSCORE_NAME);
+      break;
+
+    case AppState::SAVE_HIGHSCORE:
+      leaderboardManager.saveHighscore();
+      break;
+
     case AppState::ENDED:
       // changeState(AppState::STARTUP);
       break;
