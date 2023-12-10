@@ -7,7 +7,7 @@ RangeInput::RangeInput(const char *title, InputCallback _preview, InputCallback 
 
   preview = _preview;
   action = _action;
-  value = initialValue;
+  value = initialValue < maxSteps ? initialValue : 0;
   close = _inputClose;
 }
 

@@ -5,7 +5,7 @@ SelectInput::SelectInput(const char *title, InputCallback _preview, InputCallbac
   preview = _preview;
   action = _action;
   optionsSize = _optionsSize;
-  currentOption = initialSelection;
+  currentOption = initialSelection < optionsSize ? initialSelection : 0;
   close = _close;
 
   statusDisp.printTitle(title);
