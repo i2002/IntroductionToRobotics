@@ -62,12 +62,18 @@ CellType Game::getCellType(Position pos) const {
   return res;
 }
 
-CellType Game::getViewportCellType(Position pos) const {
-  // compute viewport offsets
+Position Game::getViewportOffset() const {
   int offsetX = min(max(0, playerPos.x - (GameDisplay::matrixSize / 2)), GameDisplay::matrixSize);
   int offsetY = min(max(0, playerPos.y - (GameDisplay::matrixSize / 2)), GameDisplay::matrixSize);
+  return Position{offsetX, offsetY};
+}
 
-  return getCellType({pos.x + offsetX, pos.y + offsetY});
+Position Game::getPlayerPos() const {
+  return playerPos;
+}
+
+Position Game::getBombPosition() const {
+  return bombPos;
 }
 
 void Game::setCellType(Position pos, CellType type) {
@@ -119,6 +125,7 @@ void Game::explodeBomb() {
     }
   }
 
+  gameDisp.displayAnimation(AnimationType::BOMB_EXPLODE_ANIMATION);
   statusDisp.updatePoints(++points);
 }
 

@@ -1,6 +1,7 @@
 #include "GameDisplay.h"
 #include <EEPROM.h>
 #include "utils.h"
+#include "context.h"
 
 
 void GameDisplay::setup() {
@@ -23,35 +24,20 @@ byte GameDisplay::getBrightness() {
   return brightness;
 }
 
-void GameDisplay::updateGameState(const Game &game) {
+void GameDisplay::renderGame() {
+  if (animation.inProgress()) {
+    return;
+  }
+
   for (int row = 0; row < matrixSize; row++) {
     for (int col = 0; col < matrixSize; col++) {
-      bool state = false;
-      CellType cell = game.getViewportCellType({col, row});
-      switch (cell) {
-        case CellType::EMPTY:
-          state = false;
-          break;
-        case CellType::WALL:
-          state = true;
-          break;
-        case CellType::BOMB:
-          if (delayedExec(lastBombBlink, bombBlinkInterval)) {
-            bombBlinkState = !bombBlinkState;
-          }
-          state = bombBlinkState;
-          break;
-        case CellType::PLAYER:
-          if (delayedExec(lastPlayerBlink, playerBlinkInterval)) {
-            playerBlinkState = !playerBlinkState;
-          }
-          state = playerBlinkState;
-          break;
-      }
-
-      lc.setLed(0, col, row, state);
+      lc.setLed(0, col, row, gameCellState(row, col));
     }
   }
+}
+
+void GameDisplay::renderAnimation() {
+  animation.render(lc);
 }
 
 void GameDisplay::displayImage(MatrixImage image) {
@@ -61,6 +47,37 @@ void GameDisplay::displayImage(MatrixImage image) {
       lc.setLed(0, j, i, bitRead(row, j));
     }
   }
+}
+
+void GameDisplay::displayAnimation(AnimationType animationType) {
+  if (animation.inProgress()) {
+    return;
+  }
+
+  animation = animationType;
+}
+
+bool GameDisplay::gameCellState(int row, int col) {
+  Position pos = Position{col, row} + game.getViewportOffset();
+  CellType cell = game.getCellType(pos);
+  switch (cell) {
+    case CellType::EMPTY:
+      return false;
+    case CellType::WALL:
+      return true;
+    case CellType::BOMB:
+      if (delayedExec(lastBombBlink, bombBlinkInterval)) {
+        bombBlinkState = !bombBlinkState;
+      }
+      return bombBlinkState;
+    case CellType::PLAYER:
+      if (delayedExec(lastPlayerBlink, playerBlinkInterval)) {
+        playerBlinkState = !playerBlinkState;
+      }
+      return playerBlinkState;
+  }
+
+  return false;
 }
 
 void GameDisplay::resetPlayerBlink() {

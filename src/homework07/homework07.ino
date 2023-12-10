@@ -55,6 +55,7 @@ void loop() {
   }
 
   appStateManager.tickTimer();
+  gameDisp.renderAnimation();
 }
 
 inline void uiNavigationRuntime() {
@@ -85,5 +86,5 @@ inline void gameRuntime() {
     return;
   }
 
-  gameDisp.updateGameState(game);
+  gameDisp.renderGame();
 }

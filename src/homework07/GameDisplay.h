@@ -3,14 +3,11 @@
 
 #include <Arduino.h>
 #include "LedControl.h"
-#include "Game.h"
+#include "GameDisplayAnimation.h"
 #include "config.h"
 
 
-/**
- * @brief 
- * 
- */
+// Custom type definitions
 typedef uint64_t MatrixImage;
 
 
@@ -25,11 +22,15 @@ class GameDisplay {
   // LED control state
   LedControl lc;
 
-  // game LED blink states
+  // Game LED blink states
   bool playerBlinkState = false;
   bool bombBlinkState = false;
   unsigned long lastPlayerBlink = 0;
   unsigned long lastBombBlink = 0;
+  unsigned long animationRender = 0;
+
+  // Animations
+  GameDisplayAnimation animation = AnimationType::NO_ANIMATION;
 
 public:
   static const int matrixSize = 8;
@@ -64,11 +65,14 @@ public:
   byte getBrightness();
 
   /**
-   * @brief Update matrix state to reflect current game state.
-   * 
-   * @param game reference to the game state
+   * @brief Render the game state to matrix display.
    */
-  void updateGameState(const Game &game);
+  void renderGame();
+
+  /**
+   * @brief Renders the next frame if animation active.
+   */
+  void renderAnimation();
 
   /**
    * @brief Display static image.
@@ -76,6 +80,20 @@ public:
    * @param image 
    */
   void displayImage(MatrixImage image);
+
+  /**
+   * @brief Start displaying an animation.
+   * 
+   * @param animationType the animaton to be displayed
+   */
+  void displayAnimation(AnimationType animationType);
+
+  /**
+   * @brief Get if the matrix cell state based on game state.
+   *
+   * @return true if LED on, false otherwise
+   */
+  bool gameCellState(int row, int col);
 
   /**
    * @brief Reset the player blink state.

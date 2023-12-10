@@ -33,6 +33,20 @@ struct Position {
   bool operator!=(const Position &other) {
     return x != other.x || y != other.y;
   }
+
+  Position operator+(const Position &other) {
+    Position res;
+    res.x = x + other.x;
+    res.y = y + other.y;
+    return res;
+  }
+
+  Position operator-(const Position &other) {
+    Position res;
+    res.x = x - other.x;
+    res.y = y - other.y;
+    return res;
+  }
 };
 
 
@@ -93,14 +107,34 @@ public:
   bool bombTick(unsigned long time);
 
   /**
-   * @brief Get the type of a game matrix cell relative to the view offset.
-   * The display matrix is smaller than the game matrix and only a fraction of the game matrix is shown.
-   * The viewport is determined based on current player position.
+   * @brief Get the type of a game matrix cell.
    * 
-   * @param pos 
+   * @param pos the position in game matrix
    * @return CellType 
    */
-  CellType getViewportCellType(Position pos) const;
+  CellType getCellType(Position pos) const;
+
+  /**
+   * @brief Get the offset position of the game matrix relative to the game matrix.
+   * The viewport is determined based on current player position.
+   *
+   * @return CellType 
+   */
+  Position getViewportOffset() const;
+
+  /**
+   * @brief Get the player position.
+   * 
+   * @return player position
+   */
+  Position getPlayerPos() const;
+
+  /**
+   * @brief Get the bomb position.
+   * 
+   * @return bomb position
+   */
+  Position getBombPosition() const;
 
   /**
    * @brief Get the game state.
@@ -124,14 +158,6 @@ private:
    * @param type the new type of the cell
    */
   void setCellType(Position pos, CellType type);
-
-  /**
-   * @brief Get the type of a game matrix cell.
-   * 
-   * @param pos the position in game matrix
-   * @return CellType 
-   */
-  CellType getCellType(Position pos) const;
 
   /**
    * @brief Randomly initialize walls in game matrix and initial player position.

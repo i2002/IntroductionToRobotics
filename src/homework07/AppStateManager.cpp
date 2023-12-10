@@ -9,7 +9,6 @@ void AppStateManager::changeState(AppState newState) {
   if (newState == AppState::UNCHANGED) {
     return;
   }
-  Serial.println((byte)newState);
 
   currentState = (byte) newState;
 
@@ -19,7 +18,8 @@ void AppStateManager::changeState(AppState newState) {
   
     case AppState::STARTUP:
       statusDisp.printScreen(welcomeScreen);
-      setTransitionTimer(1000);
+      gameDisp.displayAnimation(AnimationType::STARTUP_ANIMATION);
+      setTransitionTimer(2000);
       break;
     case AppState::MAIN_NAVIGATION:
       menuManager.resetMenu(getMenu(AppMenu::MAIN_MENU));
