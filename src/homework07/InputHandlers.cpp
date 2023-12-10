@@ -54,7 +54,7 @@ void leaderboardAction(byte val) {
 
 void highscoreNameAction(const char* input) {
   leaderboardManager.setName(input);
-  changeState(AppState::SAVE_HIGHSCORE);
+  appStateManager.stateTransition();
 }
 
 void setupInput(InputType type) {

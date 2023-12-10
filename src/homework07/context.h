@@ -6,6 +6,7 @@
 #include "Button.h"
 #include "StatusDisplay.h"
 #include "GameDisplay.h"
+#include "AppStateManager.h"
 #include "MenuManager.h"
 #include "InputManager.h"
 #include "LeaderboardManager.h"
@@ -20,23 +21,24 @@ extern StatusDisplay statusDisp;
 extern GameDisplay gameDisp;
 
 // - App state components
+extern AppStateManager appStateManager;
 extern MenuManager menuManager;
 extern InputManager inputManager;
 extern LeaderboardManager leaderboardManager;
 extern Game game;
 
 // - App state
-enum class AppState {
-  STARTUP,
-  MAIN_NAVIGATION,
-  GAME_RUNNING,
-  SCORE_REVIEW,
-  SET_HIGHSCORE_NAME,
-  SAVE_HIGHSCORE,
-  ENDED
-};
+// enum class AppState {
+//   STARTUP,
+//   MAIN_NAVIGATION,
+//   GAME_RUNNING,
+//   SCORE_REVIEW,
+//   SET_HIGHSCORE_NAME,
+//   SAVE_HIGHSCORE,
+//   ENDED
+// };
 
-void changeState(AppState newState);
+// void changeState(AppState newState);
 
 
 #endif // CONTEXT_H

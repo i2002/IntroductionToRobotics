@@ -1,0 +1,101 @@
+#include "AppStateManager.h"
+#include "context.h"
+#include "utils.h"
+#include "resources/menuDefinitions.h"
+#include "resources/matrixImages.h"
+#include "resources/displayScreens.h"
+
+void AppStateManager::changeState(AppState newState) {
+  currentState = (byte) newState;
+
+  switch (newState) {
+    case AppState::STARTUP:
+      statusDisp.printScreen(welcomeScreen);
+      setTransitionTimer(1000);
+      break;
+    case AppState::MAIN_NAVIGATION:
+      menuManager.pushMenu(getMenu(AppMenu::MAIN_MENU));
+      setInputContext(AppInputContext::UI_INPUT);
+      break;
+
+    case AppState::GAME_RUNNING:
+      game.startGame();
+      setInputContext(AppInputContext::GAME_INPUT);
+      break;
+
+    case AppState::SCORE_REVIEW:
+      if (game.getState() == GameState::LOST) {
+        gameDisp.displayImage(lostGameImage);
+        statusDisp.printScreen(lostGameScreen);
+      } else {
+        gameDisp.displayImage(wonGameImage);
+        statusDisp.printScreen(wonGameScreen);
+        statusDisp.updatePoints(game.getPoints());
+      }
+      setInputContext(AppInputContext::SKIP_INPUT);
+      break;
+
+    case AppState::SAVE_HIGHSCORE:
+      leaderboardManager.setPoints(game.getPoints());
+      setupInput(InputType::HIGHSCORE_NAME);
+      setInputContext(AppInputContext::UI_INPUT);
+      break;
+
+    case AppState::ENDED:
+      setTransitionTimer(1);
+      break;
+  }
+}
+
+void AppStateManager::stateTransition() {
+  AppState newState = AppState::STARTUP;
+  switch ((AppState) currentState) {
+    case AppState::STARTUP:
+      newState = AppState::MAIN_NAVIGATION;
+      break;
+
+    case AppState::MAIN_NAVIGATION:
+      newState = AppState::MAIN_NAVIGATION;
+      break;
+
+    case AppState::GAME_RUNNING:
+      newState = AppState::GAME_RUNNING;
+      break;
+
+    case AppState::SCORE_REVIEW:
+      newState = leaderboardManager.isHighscore(game.getPoints()) ? AppState::SAVE_HIGHSCORE : AppState::ENDED;
+      break;
+
+    case AppState::SAVE_HIGHSCORE:
+      leaderboardManager.saveHighscore();
+      newState = AppState::ENDED;
+      break;
+
+    case AppState::ENDED:
+      newState = AppState::MAIN_NAVIGATION;
+      break;
+  }
+
+  changeState(newState);
+}
+
+void AppStateManager::tickTimer() {
+  if (transitionTimerDuration != 0 && delayedExec(transitionTimer, transitionTimerDuration)) {
+    transitionTimerDuration = 0;
+    stateTransition();
+  }
+}
+
+AppInputContext AppStateManager::getInputContext() {
+  return (AppInputContext) inputContext;
+}
+
+void AppStateManager::setInputContext(AppInputContext newContext) {
+  inputContext = (byte) newContext;
+}
+
+void AppStateManager::setTransitionTimer(unsigned long timerDuration) {
+  setInputContext(AppInputContext::NONE);
+  transitionTimer = millis();
+  transitionTimerDuration = timerDuration;
+}

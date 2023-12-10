@@ -15,15 +15,12 @@ StatusDisplay statusDisp;
 GameDisplay gameDisp;
 
 // - App state components
+AppStateManager appStateManager;
 MenuManager menuManager;
 InputManager inputManager;
 LeaderboardManager leaderboardManager;
 Game game;
 
-
-AppState appState = AppState::MAIN_NAVIGATION;
-
-const int startupDelay = 3000;
 
 void setup() {
   Serial.begin(115200);
@@ -35,45 +32,29 @@ void setup() {
   gameDisp.setup();
   statusDisp.setup();
 
-  changeState(AppState::STARTUP);  
+  appStateManager.changeState(AppState::STARTUP);  
 }
 
 void loop() {
-  switch (appState) {
-    case AppState::STARTUP:
-      if (millis() > startupDelay) {
-        changeState(AppState::MAIN_NAVIGATION);
-      }
+  switch(appStateManager.getInputContext()) {
+    case AppInputContext::NONE:
       break;
 
-    case AppState::MAIN_NAVIGATION:
-    case AppState::SET_HIGHSCORE_NAME:
+    case AppInputContext::UI_INPUT:
       uiNavigationRuntime();
       break;
 
-    case AppState::GAME_RUNNING:
+    case AppInputContext::GAME_INPUT:
       gameRuntime();
       break;
 
-    case AppState::SCORE_REVIEW:
+    case AppInputContext::SKIP_INPUT:
       if (triggerBtn.buttonPressed()) {
-        if (leaderboardManager.isHighscore(game.getPoints())) {
-          leaderboardManager.setPoints(game.getPoints());
-          changeState(AppState::SET_HIGHSCORE_NAME);
-        } else {
-          changeState(AppState::ENDED);
-        }
+        appStateManager.stateTransition();
       }
-      break;
-
-    case AppState::SAVE_HIGHSCORE:
-      changeState(AppState::ENDED);
-      break;
-
-    case AppState::ENDED:
-      changeState(AppState::MAIN_NAVIGATION);
-      break;
   }
+
+  appStateManager.tickTimer();
 }
 
 inline void uiNavigationRuntime() {
@@ -100,48 +81,9 @@ inline void gameRuntime() {
 
   bool exploded = game.bombTick(millis());
   if (exploded && game.getState() != GameState::RUNNING) {
-    changeState(AppState::SCORE_REVIEW);
+    appStateManager.changeState(AppState::SCORE_REVIEW);
     return;
   }
 
   gameDisp.updateGameState(game);
-}
-
-void changeState(AppState newState) {
-  switch (newState) {
-    case AppState::STARTUP:
-      statusDisp.printScreen(welcomeScreen);
-      break;
-    case AppState::MAIN_NAVIGATION:
-      menuManager.pushMenu(getMenu(AppMenu::MAIN_MENU));
-      break;
-
-    case AppState::GAME_RUNNING:
-      game.startGame();
-      break;
-
-    case AppState::SCORE_REVIEW:
-      if (game.getState() == GameState::LOST) {
-        gameDisp.displayImage(lostGameImage);
-        statusDisp.printScreen(lostGameScreen);
-      } else {
-        gameDisp.displayImage(wonGameImage);
-        statusDisp.printScreen(wonGameScreen);
-        statusDisp.updatePoints(game.getPoints());
-      }
-      break;
-
-    case AppState::SET_HIGHSCORE_NAME:
-      setupInput(InputType::HIGHSCORE_NAME);
-      break;
-
-    case AppState::SAVE_HIGHSCORE:
-      leaderboardManager.saveHighscore();
-      break;
-
-    case AppState::ENDED:
-      // changeState(AppState::STARTUP);
-      break;
-  }
-  appState = newState;
 }

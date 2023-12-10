@@ -11,7 +11,7 @@
  * @returns true if the ammount has passed and the lastExec argument has been
  *  updated, false otherwise
  */
-bool delayedExec(unsigned long &lastExec, unsigned long delay) {
+inline bool delayedExec(unsigned long &lastExec, unsigned long delay) {
   unsigned long currentMillis = millis();
   if (currentMillis - lastExec >= delay) {
     lastExec = currentMillis;
