@@ -13,16 +13,16 @@ class MenuManager {
   MenuStackItem menuStack[5];
 
 public:
+  void resetMenu(const Menu &menu);
   void pushMenu(const Menu &menu);
   void popMenu();
+  void showMenu();
   void resumeMenu();
   void menuPreview(byte option);
   void menuAction(byte option);
-  const char *menuLabel(byte option);
 
 private:
   bool empty();
-  void setupMenuDisplay();
   MenuStackItem& getCurrentMenu();
   const MenuOption& getOption(byte index);
 };

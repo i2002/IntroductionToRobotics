@@ -7,7 +7,7 @@ typedef void (*InputCallback)(byte);
 class Input {
 public:
   virtual void processMovement(JoystickPosition pos) = 0;
-  virtual void processActionBtn() = 0;
+  virtual bool processActionBtn() = 0;
   virtual ~Input() {}
 };
 

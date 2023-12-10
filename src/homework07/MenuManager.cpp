@@ -11,13 +11,21 @@ void menuActionHandler(byte option) {
   menuManager.menuAction(option);
 }
 
+bool menuClose(byte) {
+  return false;
+}
+
+
+void MenuManager::resetMenu(const Menu &menu) {
+  stackSize = 0;
+  pushMenu(menu);
+}
 
 void MenuManager::pushMenu(const Menu &menu) {
   menuStack[stackSize].menu = &menu;
   menuStack[stackSize].savedPos = 0;
   stackSize++;
-  
-  setupMenuDisplay();
+  showMenu();
 }
 
 void MenuManager::popMenu() {
@@ -28,12 +36,16 @@ void MenuManager::popMenu() {
   menuStack[stackSize - 1].menu = nullptr;
   menuStack[stackSize - 1].savedPos = 0;
   stackSize--;
-
-  setupMenuDisplay();
+  showMenu();
 }
 
-void MenuManager::resumeMenu() {
-  setupMenuDisplay();
+void MenuManager::showMenu() {
+  if (empty()) {
+    return;
+  }
+
+  const MenuStackItem& currentMenu = getCurrentMenu();
+  inputManager.setupSelectInput(currentMenu.menu->name, menuPreviewHandler, menuActionHandler, currentMenu.menu->lenOptions, currentMenu.savedPos, menuClose);
 }
 
 void MenuManager::menuAction(byte option) {
@@ -56,15 +68,6 @@ void MenuManager::menuPreview(byte option) {
 
 bool MenuManager::empty() {
   return stackSize == 0;
-}
-
-void MenuManager::setupMenuDisplay() {
-  if (empty()) {
-    return;
-  }
-
-  const MenuStackItem& currentMenu = getCurrentMenu();
-  inputManager.setupSelectInput(currentMenu.menu->name, menuPreviewHandler, menuActionHandler, currentMenu.menu->lenOptions, currentMenu.savedPos);
 }
 
 MenuStackItem& MenuManager::getCurrentMenu() {

@@ -9,7 +9,6 @@ void lcdBrightnessPreview(byte step) {
 
 void lcdBrightnessAction(byte step) {
   statusDisp.setBrightness(step, true);
-  menuManager.resumeMenu();
 }
 
 void matrixBrightnessPreview(byte step) {
@@ -18,7 +17,6 @@ void matrixBrightnessPreview(byte step) {
 
 void matrixBrightnessAction(byte step) {
   gameDisp.setBrightness(step, true);
-  menuManager.resumeMenu();
 }
 
 void soundSettingPreview(byte val) {
@@ -27,7 +25,6 @@ void soundSettingPreview(byte val) {
 
 void soundSettingAction(byte val) {
   // soundSettingStore.updateValue((bool)val); // FIXME: sound manager
-  menuManager.resumeMenu();
 }
 
 void leaderboardPreview(byte val) {
@@ -46,15 +43,12 @@ void leaderboardPreview(byte val) {
   }
 }
 
-void leaderboardAction(byte val) {
-  if (val == leaderboardSize) {
-    menuManager.resumeMenu();
-  }
+bool leaderboardClose(byte val) {
+  return val == leaderboardSize;
 }
 
 void highscoreNameAction(const char* input) {
   leaderboardManager.setName(input);
-  appStateManager.stateTransition();
 }
 
 void setupInput(InputType type) {
@@ -69,7 +63,7 @@ void setupInput(InputType type) {
       return inputManager.setupSelectInput("Sounds", soundSettingPreview, soundSettingAction, 2, 0); // FIXME: sound manager
 
     case InputType::LEADERBOARD_VIEW:
-      return inputManager.setupSelectInput("Leaderboard", leaderboardPreview, leaderboardAction, leaderboardSize + 1, 0);
+      return inputManager.setupSelectInput("Leaderboard", leaderboardPreview, nullptr, leaderboardSize + 1, 0, leaderboardClose);
 
     case InputType::HIGHSCORE_NAME:
       return inputManager.setupTextInput("Leaderboard name", nullptr, highscoreNameAction, leaderboardNameSize);

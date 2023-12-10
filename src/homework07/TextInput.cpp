@@ -1,8 +1,8 @@
 #include "TextInput.h"
 #include "context.h"
 
-TextInput::TextInput(const char *title, TextInputCallback _preview, TextInputCallback _action, byte _maxLen, const char* initialValue) :
-  preview{_preview}, action{_action}, maxLen{_maxLen}, cursor{0}
+TextInput::TextInput(const char *title, TextInputCallback _preview, TextInputCallback _action, byte _maxLen, const char* initialValue, TextInputCloseCallback _close) :
+  preview{_preview}, action{_action}, close{_close}, maxLen{_maxLen}, cursor{0}
 {
   statusDisp.printTitle(title);
 
@@ -45,10 +45,17 @@ void TextInput::processMovement(JoystickPosition pos) {
   }
 }
 
-void TextInput::processActionBtn() {
+bool TextInput::processActionBtn() {
+  bool actionClose = true;
+  if (close) {
+    actionClose = close(inputBuf);
+  }
+
   if (action) {
     action(inputBuf);
   }
+
+  return actionClose;
 }
 
 void TextInput::setCursor(byte _cursor) {

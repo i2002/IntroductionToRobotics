@@ -1,10 +1,12 @@
 #include "SelectInput.h"
+#include "context.h"
 
-SelectInput::SelectInput(const char *title, InputCallback _preview, InputCallback _action, byte _optionsSize, byte initialSelection) {
+SelectInput::SelectInput(const char *title, InputCallback _preview, InputCallback _action, byte _optionsSize, byte initialSelection, InputCloseCallback _close) {
   preview = _preview;
   action = _action;
   optionsSize = _optionsSize;
   currentOption = initialSelection;
+  close = _close;
 
   statusDisp.printTitle(title);
   printCurrentOption();
@@ -37,10 +39,17 @@ void SelectInput::processMovement(JoystickPosition pos) {
   printCurrentOption();
 }
 
-void SelectInput::processActionBtn() {
+bool SelectInput::processActionBtn() {
+  bool actionClose = true;
+  if (close) {
+    actionClose = close(currentOption);
+  }
+
   if (action) {
     action(currentOption);
   }
+
+  return actionClose;
 }
 
 void SelectInput::printCurrentOption() {

@@ -9,14 +9,15 @@ class InputManager {
   Input *currentInput = nullptr;
   char inputsBuf[max(max(sizeof(RangeInput), sizeof(SelectInput)), sizeof(TextInput))];
 
+
 public:
   ~InputManager();
 
-  void setupRangeInput(const char* title, InputCallback preview, InputCallback action, byte initialValue = 0);
+  void setupRangeInput(const char* title, InputCallback preview, InputCallback action, byte initialValue = 0, InputCloseCallback close = nullptr);
 
-  void setupSelectInput(const char* title, InputCallback preview, InputCallback action, byte optionsSize, byte initialSelection = 0);
+  void setupSelectInput(const char* title, InputCallback preview, InputCallback action, byte optionsSize, byte initialSelection = 0, InputCloseCallback close = nullptr);
 
-  void setupTextInput(const char* title, TextInputCallback preview, TextInputCallback action, byte maxLen, const char* initialValue = nullptr);
+  void setupTextInput(const char* title, TextInputCallback preview, TextInputCallback action, byte maxLen, const char* initialValue = nullptr, TextInputCloseCallback close = nullptr);
 
   void processMovement(JoystickPosition pos);
 

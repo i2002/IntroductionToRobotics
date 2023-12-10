@@ -6,15 +6,23 @@
 #include "resources/displayScreens.h"
 
 void AppStateManager::changeState(AppState newState) {
+  if (newState == AppState::UNCHANGED) {
+    return;
+  }
+  Serial.println((byte)newState);
+
   currentState = (byte) newState;
 
   switch (newState) {
+    case AppState::UNCHANGED:
+      break;
+  
     case AppState::STARTUP:
       statusDisp.printScreen(welcomeScreen);
       setTransitionTimer(1000);
       break;
     case AppState::MAIN_NAVIGATION:
-      menuManager.pushMenu(getMenu(AppMenu::MAIN_MENU));
+      menuManager.resetMenu(getMenu(AppMenu::MAIN_MENU));
       setInputContext(AppInputContext::UI_INPUT);
       break;
 
@@ -48,14 +56,19 @@ void AppStateManager::changeState(AppState newState) {
 }
 
 void AppStateManager::stateTransition() {
-  AppState newState = AppState::STARTUP;
+  AppState newState = AppState::UNCHANGED;
+
   switch ((AppState) currentState) {
+    case AppState::UNCHANGED:
+      newState = AppState::STARTUP;
+      break;
+
     case AppState::STARTUP:
       newState = AppState::MAIN_NAVIGATION;
       break;
 
     case AppState::MAIN_NAVIGATION:
-      newState = AppState::MAIN_NAVIGATION;
+      menuManager.showMenu();
       break;
 
     case AppState::GAME_RUNNING:

@@ -3,6 +3,7 @@
 #include <Arduino.h>
 
 enum class AppState {
+  UNCHANGED,
   STARTUP,
   MAIN_NAVIGATION,
   GAME_RUNNING,
@@ -19,7 +20,7 @@ enum class AppInputContext {
 };
 
 class AppStateManager {
-  byte currentState = (byte) AppState::STARTUP;
+  byte currentState = (byte) AppState::UNCHANGED;
   byte inputContext = (byte) AppInputContext::NONE;
   unsigned long transitionTimer = 0;
   unsigned long transitionTimerDuration = 0;

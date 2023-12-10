@@ -3,21 +3,23 @@
 #include "Input.h"
 
 typedef void (*TextInputCallback)(const char*);
+typedef bool (*TextInputCloseCallback)(const char*);
 
 class TextInput : public Input {
   TextInputCallback preview = nullptr;
   TextInputCallback action = nullptr;
+  TextInputCloseCallback close = nullptr;
   char inputBuf[16];
   byte maxLen = 0;
   byte cursor = 0;
 
 public:
-  TextInput(const char *title, TextInputCallback _preview, TextInputCallback _action, byte _maxLen, const char* initialValue);
+  TextInput(const char *title, TextInputCallback _preview, TextInputCallback _action, byte _maxLen, const char* initialValue, TextInputCloseCallback _close);
   ~TextInput() = default;
 
   void processMovement(JoystickPosition pos);
 
-  void processActionBtn();
+  bool processActionBtn();
 
 private:
   void setCursor(byte _cursor);

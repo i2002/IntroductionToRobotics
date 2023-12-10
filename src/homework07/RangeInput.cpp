@@ -1,13 +1,14 @@
 #include "RangeInput.h"
 #include "context.h"
 
-RangeInput::RangeInput(const char *title, InputCallback _preview, InputCallback _action, byte initialValue) {
+RangeInput::RangeInput(const char *title, InputCallback _preview, InputCallback _action, byte initialValue, InputCloseCallback _inputClose) {
   statusDisp.printTitle(title);
   statusDisp.printRange(initialValue);
 
   preview = _preview;
   action = _action;
   value = initialValue;
+  close = _inputClose;
 }
 
 void RangeInput::processMovement(JoystickPosition pos) {
@@ -24,8 +25,15 @@ void RangeInput::processMovement(JoystickPosition pos) {
   }
 }
 
-void RangeInput::processActionBtn() {
+bool RangeInput::processActionBtn() {
+  bool actionClose = true;
+  if (close) {
+    actionClose = close(value);
+  }
+
   if (action) {
     action(value);
   }
+
+  return actionClose;
 }
