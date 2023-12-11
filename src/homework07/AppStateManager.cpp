@@ -4,6 +4,7 @@
 #include "resources/menuDefinitions.h"
 #include "resources/matrixImages.h"
 #include "resources/displayScreens.h"
+#include "resources/sounds.h"
 
 void AppStateManager::changeState(AppState newState) {
   if (newState == AppState::UNCHANGED) {
@@ -19,6 +20,7 @@ void AppStateManager::changeState(AppState newState) {
     case AppState::STARTUP:
       statusDisp.printScreen(welcomeScreen);
       gameDisp.displayAnimation(AnimationType::STARTUP_ANIMATION);
+      soundManager.playSound(SoundType::STARTUP_SOUND);
       setTransitionTimer(2000);
       break;
     case AppState::MAIN_NAVIGATION:

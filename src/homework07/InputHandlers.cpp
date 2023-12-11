@@ -24,7 +24,7 @@ void soundSettingPreview(byte val) {
 }
 
 void soundSettingAction(byte val) {
-  // soundSettingStore.updateValue((bool)val); // FIXME: sound manager
+  soundManager.setEnabled((bool) val);
 }
 
 void leaderboardPreview(byte val) {
@@ -60,7 +60,7 @@ void setupInput(InputType type) {
       return inputManager.setupRangeInput("Matrix Brightness", matrixBrightnessPreview, matrixBrightnessAction, gameDisp.getBrightness());
 
     case InputType::SOUND_SETTING:
-      return inputManager.setupSelectInput("Sounds", soundSettingPreview, soundSettingAction, 2, 0); // FIXME: sound manager
+      return inputManager.setupSelectInput("Sounds", soundSettingPreview, soundSettingAction, 2, (byte) soundManager.getEnabled());
 
     case InputType::LEADERBOARD_VIEW:
       return inputManager.setupSelectInput("Leaderboard", leaderboardPreview, nullptr, leaderboardSize + 1, 0, leaderboardClose);

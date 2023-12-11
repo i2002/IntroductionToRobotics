@@ -19,6 +19,7 @@ AppStateManager appStateManager;
 MenuManager menuManager;
 InputManager inputManager;
 LeaderboardManager leaderboardManager;
+SoundManager soundManager;
 Game game;
 
 

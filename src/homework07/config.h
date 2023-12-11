@@ -19,6 +19,8 @@ const byte loadPin = 10;
 
 const byte triggerPin = 2;
 
+const byte buzzerPin = 13;
+
 const int leaderboardSize = 5;
 const int leaderboardNameSize = 5;
 const int maxHighscorePoints = 255;
