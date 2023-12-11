@@ -57,6 +57,7 @@ void loop() {
 
   appStateManager.tickTimer();
   gameDisp.renderAnimation();
+  soundManager.runtime();
 }
 
 inline void uiNavigationRuntime() {
