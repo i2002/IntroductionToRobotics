@@ -113,8 +113,12 @@ void Game::generateMatrix() {
 
 void Game::explodeBomb() {
   bombActive = false;
+  int nrDestroyed = 0;
   for (int row = 0; row < matrixHeight; row++) {
     Position pos = {bombPos.x, row};
+    if (getCellType(pos) == CellType::WALL) {
+      nrDestroyed++;
+    }
     setCellType(pos, CellType::EMPTY);
 
     if (pos == playerPos) {
@@ -124,6 +128,9 @@ void Game::explodeBomb() {
 
   for (int col = 0; col < matrixWidth; col++) {
     Position pos = {col, bombPos.y};
+    if (getCellType(pos) == CellType::WALL) {
+      nrDestroyed++;
+    }
     setCellType(pos, CellType::EMPTY);
 
     if (pos == playerPos) {
@@ -131,8 +138,9 @@ void Game::explodeBomb() {
     }
   }
 
+  points += nrDestroyed;
   gameDisp.displayAnimation(AnimationType::BOMB_EXPLODE_ANIMATION, true);
-  statusDisp.updatePoints(++points);
+  statusDisp.updatePoints(points);
 }
 
 bool Game::checkWinCondition() {
