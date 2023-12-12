@@ -92,6 +92,12 @@ void Game::generateMatrix() {
   int wallsNr = random(0.5 * matrixHeight * matrixWidth, 0.75 * matrixHeight * matrixWidth + 1);
   playerPos = randomPos();
 
+  for (int i = 0; i < matrixHeight; i++) {
+    for (int j = 0; j < matrixWidth; j++) {
+      setCellType({j, i}, CellType::EMPTY);
+    }
+  }
+
   for (int i = 0; i < wallsNr; i++) {
     Position wallPos = randomPos();
 
