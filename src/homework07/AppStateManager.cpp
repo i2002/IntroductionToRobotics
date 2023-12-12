@@ -87,7 +87,7 @@ void AppStateManager::stateTransition() {
       break;
 
     case AppState::SCORE_REVIEW:
-      newState = leaderboardManager.isHighscore(game.getPoints()) ? AppState::SAVE_HIGHSCORE : AppState::ENDED;
+      newState = game.getState() == GameState::WON && leaderboardManager.isHighscore(game.getPoints()) ? AppState::SAVE_HIGHSCORE : AppState::ENDED;
       break;
 
     case AppState::SAVE_HIGHSCORE:
