@@ -1,24 +1,20 @@
 #ifndef RANGE_INPUT_H
 #define RANGE_INPUT_H
-#include "Input.h"
+#include <Arduino.h>
 
-typedef bool (*InputCloseCallback)(byte);
-
-class RangeInput : public Input {
-  InputCallback preview = nullptr;
-  InputCallback action = nullptr;
-  InputCloseCallback close = nullptr;
+class RangeInput {
   byte value = 0;
 
 public:
   static const byte maxSteps = 14;
   
-  RangeInput(const char *title, InputCallback _preview, InputCallback _action, byte initialValue, InputCloseCallback _inputClose);
-  ~RangeInput() = default;
+  RangeInput(const char *title = nullptr, byte initialValue = 0);
 
-  void processMovement(JoystickPosition pos);
+  bool stepsIncrement();
 
-  bool processActionBtn();
+  bool stepsDecrement();
+
+  byte getValue() const;
 };
 
 #endif // RANGE_INPUT_H

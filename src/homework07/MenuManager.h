@@ -17,12 +17,13 @@ public:
   void pushMenu(const Menu &menu);
   void popMenu();
   void showMenu();
-  void menuPreview(byte option);
-  void menuAction(byte option);
+  void menuInputSetup();
+  void menuInputPreview(byte option);
+  void menuInputAction(byte option);
 
 private:
   bool empty();
-  MenuStackItem& getCurrentMenu();
+  MenuStackItem& currentMenu();
   const MenuOption& getOption(byte index);
 };
 

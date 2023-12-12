@@ -1,4 +1,4 @@
-#include "../menu.h"
+#include "../Menu.h"
 #include "matrixImages.h"
 
 // - Macro for getting the size of a statically allocated vector of MenuOptions
@@ -13,14 +13,14 @@ const MenuOption mainMenuOptions[] = {
   { "Start game", startGameImage, MenuActionType::START_GAME },
   { "Tutorial", tutorialImage, MenuActionType::NO_ACTION },
   { "Settings", settingsImage, AppMenu::SETTINGS_SUBMENU },
-  { "Leaderboard", leaderboardImage, InputType::LEADERBOARD_VIEW },
+  { "Leaderboard", leaderboardImage, InputActionType::LEADERBOARD_VIEW },
   { "About", aboutImage, MenuActionType::NO_ACTION }
 };
 
 const MenuOption submenuOptions[] = {
-  { "LCD Light", lcdBrightnessImage, InputType::LCD_BRIGHTNESS_SETTING },
-  { "Matrix Light", matrixBrightnessImage, InputType::MATRIX_BRIGHTNESS_SETTING },
-  { "Sounds", soundImage, InputType::SOUND_SETTING },
+  { "LCD Light", lcdBrightnessImage, InputActionType::LCD_BRIGHTNESS_SETTING },
+  { "Matrix Light", matrixBrightnessImage, InputActionType::MATRIX_BRIGHTNESS_SETTING },
+  { "Sounds", soundImage, InputActionType::SOUND_SETTING },
   { "Back", backImage, MenuActionType::MENU_BACK }
 };
 

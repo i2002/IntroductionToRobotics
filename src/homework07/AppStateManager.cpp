@@ -47,7 +47,7 @@ void AppStateManager::changeState(AppState newState) {
 
     case AppState::SAVE_HIGHSCORE:
       leaderboardManager.setPoints(game.getPoints());
-      setupInput(InputType::HIGHSCORE_NAME);
+      inputManager.setupInput(InputActionType::HIGHSCORE_NAME);
       setInputContext(AppInputContext::UI_INPUT);
       break;
 

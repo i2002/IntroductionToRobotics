@@ -1,39 +1,33 @@
 #include "RangeInput.h"
 #include "context.h"
 
-RangeInput::RangeInput(const char *title, InputCallback _preview, InputCallback _action, byte initialValue, InputCloseCallback _inputClose) {
+RangeInput::RangeInput(const char *title, byte initialValue) {
   statusDisp.printTitle(title);
   statusDisp.printRange(initialValue);
 
-  preview = _preview;
-  action = _action;
   value = initialValue < maxSteps ? initialValue : 0;
-  close = _inputClose;
 }
 
-void RangeInput::processMovement(JoystickPosition pos) {
-  if (pos == JoystickPosition::LEFT && value > 0) {
-    value--;
-  } else if (pos == JoystickPosition::RIGHT && value < maxSteps) {
-    value++;
+bool RangeInput::stepsIncrement() {
+  if (value >= maxSteps) {
+    return false;
   }
 
+  value++;
   statusDisp.printRange(value);
-  
-  if (preview) {
-    preview(value);
-  }
+  return true;
 }
 
-bool RangeInput::processActionBtn() {
-  bool actionClose = true;
-  if (close) {
-    actionClose = close(value);
+bool RangeInput::stepsDecrement() {
+  if (value <= 0) {
+    return false;
   }
 
-  if (action) {
-    action(value);
-  }
+  value--;
+  statusDisp.printRange(value);
+  return true;
+}
 
-  return actionClose;
+byte RangeInput::getValue() const {
+  return value;
 }

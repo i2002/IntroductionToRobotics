@@ -1,8 +1,8 @@
 #include "TextInput.h"
 #include "context.h"
 
-TextInput::TextInput(const char *title, TextInputCallback _preview, TextInputCallback _action, byte _maxLen, const char* initialValue, TextInputCloseCallback _close) :
-  preview{_preview}, action{_action}, close{_close}, maxLen{_maxLen}, cursor{0}
+TextInput::TextInput(const char *title, byte _maxLen, const char* initialValue) :
+  maxLen{_maxLen}, cursor{0}
 {
   statusDisp.printTitle(title);
 
@@ -14,48 +14,28 @@ TextInput::TextInput(const char *title, TextInputCallback _preview, TextInputCal
   statusDisp.printMenuArrow();
 }
 
-void TextInput::processMovement(JoystickPosition pos) {
-  switch(pos) {
-    case JoystickPosition::LEFT:
-      if (cursor > 0) {
-        setCursor(cursor - 1);
-      }
-      break;
-
-    case JoystickPosition::RIGHT:
-      if (cursor < maxLen - 1) {
-        setCursor(cursor + 1);
-      }
-      break;
-
-    case JoystickPosition::UP:
-      writeChar(nextChar());
-      break;
-
-    case JoystickPosition::DOWN:
-      writeChar(prevChar());
-      break;
-
-    case JoystickPosition::NEUTRAL:
-      return;
-  }
-
-  if (preview) {
-    preview(inputBuf);
+void TextInput::moveCursorLeft() {
+  if (cursor > 0) {
+    setCursor(cursor - 1);
   }
 }
 
-bool TextInput::processActionBtn() {
-  bool actionClose = true;
-  if (close) {
-    actionClose = close(inputBuf);
+void TextInput::moveCursorRight() {
+  if (cursor < maxLen - 1) {
+    setCursor(cursor + 1);
   }
+}
 
-  if (action) {
-    action(inputBuf);
-  }
+void TextInput::nextChar() {
+  writeChar(getNextChar());
+}
 
-  return actionClose;
+void TextInput::prevChar() {
+  writeChar(getPrevChar());
+}
+
+const char* TextInput::getInput() const {
+  return inputBuf;
 }
 
 void TextInput::setCursor(byte _cursor) {
@@ -68,7 +48,7 @@ void TextInput::writeChar(char newChar) {
   statusDisp.printInputChar(cursor, inputBuf[cursor]);
 }
 
-char TextInput::nextChar() {
+char TextInput::getNextChar() {
   char curent = inputBuf[cursor];
   switch(curent) {
     case ' ':
@@ -84,7 +64,7 @@ char TextInput::nextChar() {
   }
 }
 
-char TextInput::prevChar() {
+char TextInput::getPrevChar() {
   char curent = inputBuf[cursor];
   switch(inputBuf[cursor]) {
     case ' ':

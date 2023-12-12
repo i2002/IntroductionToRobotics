@@ -1,34 +1,33 @@
 #ifndef TEXT_INPUT_H
 #define TEXT_INPUT_H
-#include "Input.h"
+#include <Arduino.h>
 
-typedef void (*TextInputCallback)(const char*);
-typedef bool (*TextInputCloseCallback)(const char*);
-
-class TextInput : public Input {
-  TextInputCallback preview = nullptr;
-  TextInputCallback action = nullptr;
-  TextInputCloseCallback close = nullptr;
+class TextInput {
   char inputBuf[16];
   byte maxLen = 0;
   byte cursor = 0;
 
 public:
-  TextInput(const char *title, TextInputCallback _preview, TextInputCallback _action, byte _maxLen, const char* initialValue, TextInputCloseCallback _close);
-  ~TextInput() = default;
+  TextInput(const char *title = nullptr, byte _maxLen = 0, const char* initialValue = nullptr);
 
-  void processMovement(JoystickPosition pos);
+  void moveCursorLeft();
 
-  bool processActionBtn();
+  void moveCursorRight();
+
+  void nextChar();
+  
+  void prevChar();
+
+  const char* getInput() const;
 
 private:
   void setCursor(byte _cursor);
 
   void writeChar(char newChar);
 
-  char nextChar();
+  char getNextChar();
 
-  char prevChar();
+  char getPrevChar();
 
   bool isValidChar(char c);
 };

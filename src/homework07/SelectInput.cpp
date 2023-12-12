@@ -1,61 +1,39 @@
 #include "SelectInput.h"
 #include "context.h"
 
-SelectInput::SelectInput(const char *title, InputCallback _preview, InputCallback _action, byte _optionsSize, byte initialSelection, InputCloseCallback _close) {
-  preview = _preview;
-  action = _action;
+SelectInput::SelectInput(const char *title, byte _optionsSize, byte initialSelection) {
   optionsSize = _optionsSize;
   currentOption = initialSelection < optionsSize ? initialSelection : 0;
-  close = _close;
 
   statusDisp.printTitle(title);
   printCurrentOption();
 }
 
-void SelectInput::processMovement(JoystickPosition pos) {
-  switch (pos) {
-    case JoystickPosition::LEFT:
-    case JoystickPosition::RIGHT:
-    case JoystickPosition::NEUTRAL:
-      return;
-
-    case JoystickPosition::UP:
-      if (!canPrev()) {
-        return;
-      }
-
-      currentOption--;
-      break;
-
-    case JoystickPosition::DOWN:
-      if (!canNext()) {
-        return;
-      }
-
-      currentOption++;
-      break;
+bool SelectInput::nextOption() {
+  if (!canNext()) {
+    return false;
   }
 
+  currentOption++;
   printCurrentOption();
+  return true;
 }
 
-bool SelectInput::processActionBtn() {
-  bool actionClose = true;
-  if (close) {
-    actionClose = close(currentOption);
+bool SelectInput::prevOption() {
+  if (!canPrev()) {
+    return false;
   }
 
-  if (action) {
-    action(currentOption);
-  }
+  currentOption--;
+  printCurrentOption();
+  return true;
+}
 
-  return actionClose;
+byte SelectInput::getCurrentOption() const {
+  return currentOption;
 }
 
 void SelectInput::printCurrentOption() {
-  if (preview) {
-    preview(currentOption);
-  }
   statusDisp.printMenuArrow(canPrev(), canNext());
 }
 

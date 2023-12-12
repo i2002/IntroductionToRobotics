@@ -1,7 +1,7 @@
 #ifndef MENU_ACTION_H
 #define MENU_ACTION_H
 #include <Arduino.h>
-#include "InputHandlers.h"
+#include "InputAction.h"
 
 enum class AppMenu;
 
@@ -20,7 +20,7 @@ class MenuAction {
 public:
   MenuAction(MenuActionType _type, byte _data = 0);
   MenuAction(AppMenu menu);
-  MenuAction(InputType input);
+  MenuAction(InputActionType input);
   void handleMenuAction() const;
 
 private:

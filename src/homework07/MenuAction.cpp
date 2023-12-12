@@ -6,7 +6,7 @@ MenuAction::MenuAction(MenuActionType _type, byte _data) : type{(byte) _type}, d
 
 MenuAction::MenuAction(AppMenu menu) : MenuAction(MenuActionType::CHANGE_MENU, (byte) menu) {}
 
-MenuAction::MenuAction(InputType input) : MenuAction(MenuActionType::UI_INPUT, (byte) input) {}
+MenuAction::MenuAction(InputActionType input) : MenuAction(MenuActionType::UI_INPUT, (byte) input) {}
 
 void MenuAction::handleMenuAction() const {
   switch((MenuActionType)type) {
@@ -37,5 +37,5 @@ void MenuAction::startGameHandler() const {
 }
 
 void MenuAction::uiInputHandler() const {
-  setupInput((InputType) data);
+  inputManager.setupInput((InputActionType) data);
 }

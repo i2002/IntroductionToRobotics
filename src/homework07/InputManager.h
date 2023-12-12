@@ -1,29 +1,55 @@
 #ifndef INPUT_MANAGER_H
 #define INPUT_MANAGER_H
-#include "Input.h"
+
+#include "Joystick.h"
 #include "RangeInput.h"
 #include "SelectInput.h"
 #include "TextInput.h"
+#include "InputAction.h"
+
+enum class InputType {
+  SELECT_INPUT,
+  RANGE_INPUT,
+  TEXT_INPUT
+};
+
+union InputState {
+  SelectInput selectInput;
+  RangeInput rangeInput;
+  TextInput textInput;
+
+  InputState() {
+    memset(this, 0, sizeof(*this));
+  }
+};
 
 class InputManager {
-  Input *currentInput = nullptr;
-  char inputsBuf[max(max(sizeof(RangeInput), sizeof(SelectInput)), sizeof(TextInput))];
-
+  byte inputType;
+  InputState state;
+  InputAction actions;
 
 public:
-  ~InputManager();
-
-  void setupRangeInput(const char* title, InputCallback preview, InputCallback action, byte initialValue = 0, InputCloseCallback close = nullptr);
-
-  void setupSelectInput(const char* title, InputCallback preview, InputCallback action, byte optionsSize, byte initialSelection = 0, InputCloseCallback close = nullptr);
-
-  void setupTextInput(const char* title, TextInputCallback preview, TextInputCallback action, byte maxLen, const char* initialValue = nullptr, TextInputCloseCallback close = nullptr);
+  void setupInput(InputActionType type);
 
   void processMovement(JoystickPosition pos);
 
   void processActionBtn();
 
-  void destroyInputObject();
+private:
+  friend class InputAction;
+  friend class MenuManager;
+
+  void setupRangeInput(const char* title, byte initialValue = 0);
+
+  void setupSelectInput(const char* title, byte optionsSize, byte initialSelection = 0);
+
+  void setupTextInput(const char* title, byte maxLen, const char* initialValue = nullptr);
+
+  bool processSelectInputMovement(JoystickPosition pos);
+
+  bool processRangeInputMovement(JoystickPosition pos);
+
+  bool processTextInputMovement(JoystickPosition pos);
 };
 
 #endif // INPUT_MANAGER_H

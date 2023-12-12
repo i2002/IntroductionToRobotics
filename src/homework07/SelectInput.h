@@ -1,23 +1,19 @@
 #ifndef SELECT_INPUT_H
 #define SELECT_INPUT_H
-#include "Input.h"
+#include <Arduino.h>
 
-typedef bool (*InputCloseCallback)(byte);
-
-struct SelectInput : Input {
-  byte optionsSize;
-  byte currentOption;
-  InputCallback preview;
-  InputCallback action;
-  InputCloseCallback close;
+struct SelectInput {
+  byte optionsSize = 0;
+  byte currentOption = 0;
 
 public:
-  SelectInput(const char *title, InputCallback _preview, InputCallback _action, byte _optionsSize, byte initialSelection, InputCloseCallback _close);
-  ~SelectInput() = default;
+  SelectInput(const char *title = nullptr, byte _optionsSize = 0, byte initialSelection = 0);
 
-  void processMovement(JoystickPosition pos);
+  bool nextOption();
 
-  bool processActionBtn();
+  bool prevOption();
+
+  byte getCurrentOption() const;
 
 private:
   void printCurrentOption();
