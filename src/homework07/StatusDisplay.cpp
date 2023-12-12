@@ -174,13 +174,13 @@ void StatusDisplay::setupGameInfo(int level) {
   lcd.print("Level ");
   lcd.print(level);
   lcd.setCursor(0, 1);
-  lcd.print("@");
+  lcd.print("Points:");
 
   updatePoints(0);
 }
 
 void StatusDisplay::updatePoints(int points) {
-  lcd.setCursor(1, 1);
+  lcd.setCursor(8, 1);
   lcd.print(points);
 }
 

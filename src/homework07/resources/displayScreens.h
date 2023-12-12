@@ -13,7 +13,7 @@ const Screen lostGameScreen = {
 
 const Screen wonGameScreen = {
   "You won :)",
-  "$              >"
+  "Points:        >"
 };
 
 #endif // DISPLAY_SCREENS_H
