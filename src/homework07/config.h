@@ -6,9 +6,9 @@ const byte rs = 9;
 const byte en = 8;
 const byte d4 = 7;
 const byte d5 = 6;
-const byte d6 = 5;
-const byte d7 = 4;
-const byte pinA = 3;
+const byte d6 = 4;
+const byte d7 = 3;
+const byte pinA = 5;
 
 const byte joystickPinX = A0;
 const byte joystickPinY = A1;
@@ -17,9 +17,9 @@ const byte dinPin = 12;
 const byte clockPin = 11;
 const byte loadPin = 10;
 
-const byte triggerPin = 2;
+const byte triggerPin = A2;
 
-const byte buzzerPin = 13;
+const byte buzzerPin = 2;
 
 const int leaderboardSize = 5;
 const int leaderboardNameSize = 5;
