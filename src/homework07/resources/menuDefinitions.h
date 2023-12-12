@@ -14,7 +14,7 @@ const MenuOption mainMenuOptions[] = {
   { "Tutorial", tutorialImage, MenuActionType::NO_ACTION },
   { "Settings", settingsImage, AppMenu::SETTINGS_SUBMENU },
   { "Leaderboard", leaderboardImage, InputActionType::LEADERBOARD_VIEW },
-  { "About", aboutImage, MenuActionType::NO_ACTION }
+  { "About", aboutImage, MenuActionType::ABOUT }
 };
 
 const MenuOption submenuOptions[] = {

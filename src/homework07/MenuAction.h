@@ -10,6 +10,7 @@ enum class MenuActionType {
   MENU_BACK,
   START_GAME,
   UI_INPUT,
+  ABOUT,
   NO_ACTION
 };
 

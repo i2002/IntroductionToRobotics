@@ -18,6 +18,8 @@ void MenuAction::handleMenuAction() const {
       return startGameHandler();
     case MenuActionType::UI_INPUT:
       return uiInputHandler();
+    case MenuActionType::ABOUT:
+      return appStateManager.changeState(AppState::ABOUT);
     case MenuActionType::NO_ACTION:
       return;
   }

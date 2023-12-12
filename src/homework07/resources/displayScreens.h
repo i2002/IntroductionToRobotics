@@ -16,4 +16,9 @@ const Screen wonGameScreen = {
   "Points:        >"
 };
 
+const Screen aboutScreen = {
+  "(c) 2023",
+  "Tudor Butufei"
+};
+
 #endif // DISPLAY_SCREENS_H

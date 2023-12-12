@@ -28,6 +28,11 @@ void AppStateManager::changeState(AppState newState) {
       setInputContext(AppInputContext::UI_INPUT);
       break;
 
+    case AppState::ABOUT:
+      statusDisp.printScreen(aboutScreen);
+      setInputContext(AppInputContext::SKIP_INPUT);
+      break;
+
     case AppState::GAME_RUNNING:
       game.startGame();
       setInputContext(AppInputContext::GAME_INPUT);
@@ -71,6 +76,10 @@ void AppStateManager::stateTransition() {
 
     case AppState::MAIN_NAVIGATION:
       menuManager.showMenu();
+      break;
+
+    case AppState::ABOUT:
+      newState = AppState::MAIN_NAVIGATION;
       break;
 
     case AppState::GAME_RUNNING:
