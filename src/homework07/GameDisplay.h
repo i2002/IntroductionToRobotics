@@ -85,8 +85,9 @@ public:
    * @brief Start displaying an animation.
    * 
    * @param animationType the animaton to be displayed
+   * @param sync if the animation should be run in synchronous mode (disables input)
    */
-  void displayAnimation(AnimationType animationType);
+  void displayAnimation(AnimationType animationType, bool sync = false);
 
   /**
    * @brief Get if the matrix cell state based on game state.

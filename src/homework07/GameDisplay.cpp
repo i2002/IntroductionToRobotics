@@ -49,12 +49,18 @@ void GameDisplay::displayImage(MatrixImage image) {
   }
 }
 
-void GameDisplay::displayAnimation(AnimationType animationType) {
+void GameDisplay::displayAnimation(AnimationType animationType, bool sync) {
   if (animation.inProgress()) {
     return;
   }
 
   animation = animationType;
+
+  if (sync) {
+    while (animation.inProgress()) {
+      animation.render(lc);
+    }
+  }
 }
 
 bool GameDisplay::gameCellState(int row, int col) {

@@ -131,7 +131,7 @@ void Game::explodeBomb() {
     }
   }
 
-  gameDisp.displayAnimation(AnimationType::BOMB_EXPLODE_ANIMATION);
+  gameDisp.displayAnimation(AnimationType::BOMB_EXPLODE_ANIMATION, true);
   statusDisp.updatePoints(++points);
 }
 
