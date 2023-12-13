@@ -16,7 +16,8 @@ Each homework includes all the code and schematics used in solving the homework,
 - [Homework 3: 7 segment display drawing](#homework-3-7-segment-display-drawing)
 - [Homework 4: Stopwatch timer](#homework-4-stopwatch-timer)
 - [Homework 5: Pseudo-smart environment monitor and logger](#homework-5-pseudo-smart-environment-monitor-and-logger)
-- [Homework 6: Mini Matrix Game](#homework-6-mini-matrix-game)
+- [Homework 6: Mini Matrix Game (Matrix project checkpoint 1)](#homework-6-mini-matrix-game-matrix-project-checkpoint-1)
+- [Homework 7: Mini Matrix Game (Matrix project checkpoint 2)](#homework-7-mini-matrix-game-matrix-project-checkpoint-2)
 
 
 ## Homework 1: RGB LED
@@ -280,7 +281,7 @@ The `processSensors()` function, along with `readUltrasonicValue()` and `readLDR
 [https://www.youtube.com/watch?v=rAqru-DwZEE](https://www.youtube.com/watch?v=rAqru-DwZEE)
 
 
-## Homework 6: Mini Matrix Game
+## Homework 6: Mini Matrix Game (Matrix project checkpoint 1)
 
 ### Task description
 
@@ -377,3 +378,58 @@ After the game finishes, the player can choose to play again by pressing the tri
 **Video demo**
 
 [https://www.youtube.com/watch?v=Z9CGPHo4Sw4](https://www.youtube.com/watch?v=Z9CGPHo4Sw4)
+
+
+## Homework 7: Mini Matrix Game (Matrix project checkpoint 2)
+
+### Task description
+
+The objective of this homework is to implement basic matrix functionality in preparation for the matrix project. This includes integrating the game from the previous homework with the menu input displayed on the LCD screen.
+
+### Game features
+
+The code implements the basic application flow:
+
+- A startup message is displayed when powering on the device
+
+- The user is presented with the main menu. The menu can be navigated using the joystick, and select an option by pressing the action button. The menu has the following structure:
+  
+  > 1. Start game: starts the game
+  > 2. Tutorial: not implemented yet
+  > 3. Settings: opens a submenu which can configure the following settings
+  >     - LCD brightness
+  >     - Matrix brightness
+  >     - Sounds on / off
+  > 4. Leaderboard: shows top 5 player scores
+  > 5. About: shows creator info
+
+- When in game mode, the player can use the joystick to move around and the action button to place bombs. During gameplay, the LCD displays the current number of points
+
+  > The goal of the game is to destroy all the walls by placing bombs. When the bomb goes off, the walls on the same row or column with the bomb are destroyed. If the player stays in the range of the bomb, loses the game. If all walls have been destroyed, the player wins the game.
+
+- After the game ends (either by winning or losing), a message is shown informing the user if they won or lost and the number of points earned.
+
+- If the number of points is in the leaderboard, the user is requested to input a name to associate the points on the leaderboard, and the score is saved.
+
+- After this, the user is returned to the main menu.
+
+### Components used
+
+- Arduino UNO
+- a 8x8 LED matrix display
+- a 2x16 LCD display
+- a joystick
+- a button
+- a passive buzzer
+- a MAX7219 LED driver IC
+- 10k ohm, 100 ohm and 220 ohm resistors
+- connection wires
+
+### Implementation demo
+**Circuit implementation**
+
+![Homework 07 circuit implementation](doc/homework07/circuit_implementation.jpg)
+
+**Video demo**
+
+[https://www.youtube.com/watch?v=OMiRu3b93rQ](https://www.youtube.com/watch?v=OMiRu3b93rQ)
