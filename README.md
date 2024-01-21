@@ -34,6 +34,15 @@ The objective of this homework is to digitally control the red, green and blue l
 - 3 220 ohm resistors
 - connection wires.
 
+### Implementation demo
+**Circuit implementation**
+
+![Homework 01 circuit implementation](doc/homework01/circuit_implementation.jpg)
+
+**Video demo**
+
+[https://www.youtube.com/watch?v=vWhn9H-_sig](https://www.youtube.com/watch?v=vWhn9H-_sig)
+
 ### Circuit diagram
 
 The diagram of the circuit is the following:
@@ -52,15 +61,6 @@ The `loop()` function reads the input values (one for each color: red, green, bl
 
 Because the value readings were flickering quite a bit, I've used the average reading over a number of measurements in order to compute the LED output intensity. There are constants defined which set how many measurements to take into account for the average, and the delay between measurements.
 
-### Implementation demo
-**Circuit implementation**
-
-![Homework 01 circuit implementation](doc/homework01/circuit_implementation.jpg)
-
-**Video demo**
-
-[https://www.youtube.com/watch?v=vWhn9H-_sig](https://www.youtube.com/watch?v=vWhn9H-_sig)
-
 
 ## Homework 2: Elevator simulator wannabe
 
@@ -76,6 +76,13 @@ The objective of the homework is to simulate the state behaviour of an elevator,
 - 4 220ohm resistors and 1 100ohm resistor
 - buzzer
 - connection wires
+
+### Implementation demo
+**Circuit implementation**
+![Homework 02 circuit implementation](doc/homework02/circuit_implementation.jpg)
+
+**Video demo**
+[https://www.youtube.com/watch?v=ePu1kwLA3go](https://www.youtube.com/watch?v=ePu1kwLA3go)
 
 ### Circuit diagram
 ![Homework 02 circuit diagram](doc/homework02/circuit_diagram.png)
@@ -97,14 +104,6 @@ The `updateElevatorStatusIndicator()` functions handles status LED blinking when
 The `playToneSequence()` and `asyncToneSequence()` functions handle tone sequence playing without delays. The array of notes is stored into a pointer and using `millis()` the next note is played only when the current note duration has elapsed.
 
 
-### Implementation demo
-**Circuit implementation**
-![Homework 02 circuit implementation](doc/homework02/circuit_implementation.jpg)
-
-**Video demo**
-[https://www.youtube.com/watch?v=ePu1kwLA3go](https://www.youtube.com/watch?v=ePu1kwLA3go)
-
-
 ## Homework 3: 7 segment display drawing
 
 ### Task description
@@ -119,6 +118,13 @@ The objective of the homework is to control the state of a 7 segment digit displ
 - buzzer
 - 8 220ohm resistors and 1 100ohm resistor
 - connection wires
+
+### Implementation demo
+**Circuit implementation**
+![Homework 03 circuit implementation](doc/homework03/circuit_implementation.jpg)
+
+**Video demo**
+[https://www.youtube.com/watch?v=_RZdfk5xklA](https://www.youtube.com/watch?v=_RZdfk5xklA)
 
 ### Circuit diagram
 ![Homework 03 circuit diagram](doc/homework03/circuit_diagram.png)
@@ -142,14 +148,6 @@ The `updateDisplayState()` function keeps the display in sync with the state in 
 `delayedExec()` is a helper function for asynchronous delayed code executions, implemented as in the previous homework. `playToneSequence()` and `asyncToneSequence()` are used for asynchronous tone sequence playing and are implemented as in the previous homework.
 
 
-### Implementation demo
-**Circuit implementation**
-![Homework 03 circuit implementation](doc/homework03/circuit_implementation.jpg)
-
-**Video demo**
-[https://www.youtube.com/watch?v=_RZdfk5xklA](https://www.youtube.com/watch?v=_RZdfk5xklA)
-
-
 ## Homework 4: Stopwatch timer
 
 ### Task description
@@ -164,6 +162,13 @@ The objective of the homework is to create a simple stowpatch timer with lap rec
 - 3 button switches
 - 8 220ohm resistors
 - connection wires
+
+### Implementation demo
+**Circuit implementation**
+![Homework 04 circuit implementation](doc/homework04/circuit_implementation.jpg)
+
+**Video demo**
+[https://www.youtube.com/watch?v=vgNZHsnJdfU](https://www.youtube.com/watch?v=vgNZHsnJdfU)
 
 ### Circuit diagram
 ![Homework 04 circuit diagram](doc/homework04/circuit_diagram.png)
@@ -193,14 +198,6 @@ The `displayNumber()` function along with `writeReg()` and `activateDisplay()` h
 The `buttonInterruptDebounce()` and `buttonDebounce()` helper functions are used to identify debounced button presses inside interrupt handler or in the `loop()` function. They only return true when the debounced button state changed to pressed. The `delayedExec()` helper function handles the asyncrhonous delayed execution of code, returning true only when the specified interval has elapsed since last execution.
 
 
-### Implementation demo
-**Circuit implementation**
-![Homework 04 circuit implementation](doc/homework04/circuit_implementation.jpg)
-
-**Video demo**
-[https://www.youtube.com/watch?v=vgNZHsnJdfU](https://www.youtube.com/watch?v=vgNZHsnJdfU)
-
-
 ## Homework 5: Pseudo-smart environment monitor and logger
 
 ### Task description
@@ -215,6 +212,13 @@ The objective of this homework is to create a sensor monitor and logger which ca
 - RGB LED
 - 3 220ohm resistors and one 10k ohm resistor
 - connection wires
+
+### Implementation demo
+**Circuit implementation**
+![Homework 05 circuit implementation](doc/homework05/circuit_implementation.jpg)
+
+**Video demo**
+[https://www.youtube.com/watch?v=rAqru-DwZEE](https://www.youtube.com/watch?v=rAqru-DwZEE)
 
 ### Circuit diagram
 ![Homework 05 circuit diagram](doc/homework05/circuit_diagram.png)
@@ -273,14 +277,6 @@ Besides the `CHANGE_MENU`, `MENU_BACK` and `CHANGE_INPUT_CONTEXT` actions, there
 The `processSensors()` function, along with `readUltrasonicValue()` and `readLDRValue()` reads the values currently detected by the sensors and logs them. If the values are below the thresholds, a message is displayed for the user. `readUltrasonicValue()` uses the constant for the speed of sound to compute the distance based on the time it takes for the sensor to receive the echo of its pulse. The LDR sensor is a dynamic resistor, and its value is proportional to the ammount of light it receives.
 
 
-### Implementation demo
-**Circuit implementation**
-![Homework 05 circuit implementation](doc/homework05/circuit_implementation.jpg)
-
-**Video demo**
-[https://www.youtube.com/watch?v=rAqru-DwZEE](https://www.youtube.com/watch?v=rAqru-DwZEE)
-
-
 ## Homework 6: Mini Matrix Game (Matrix project checkpoint 1)
 
 ### Task description
@@ -298,6 +294,15 @@ The goal of the game is to destroy all the walls by placing bombs. When the bomb
 - a MAX7219 LED driver IC
 - a 10k ohm resistor
 - connection wires
+
+### Implementation demo
+**Circuit implementation**
+
+![Homework 06 circuit implementation](doc/homework06/circuit_implementation.jpg)
+
+**Video demo**
+
+[https://www.youtube.com/watch?v=Z9CGPHo4Sw4](https://www.youtube.com/watch?v=Z9CGPHo4Sw4)
 
 ### Circuit diagram
 
@@ -368,16 +373,6 @@ The `loop()` function handles the higher level app logic based on current game s
 Static images are outputed to the display at the program start (the play icon) and after the game ends (smiley face if the player won, or sad face if the player lost).
 
 After the game finishes, the player can choose to play again by pressing the trigger button.
-
-
-### Implementation demo
-**Circuit implementation**
-
-![Homework 06 circuit implementation](doc/homework06/circuit_implementation.jpg)
-
-**Video demo**
-
-[https://www.youtube.com/watch?v=Z9CGPHo4Sw4](https://www.youtube.com/watch?v=Z9CGPHo4Sw4)
 
 
 ## Homework 7: Mini Matrix Game (Matrix project checkpoint 2)
