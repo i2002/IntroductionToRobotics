@@ -8,6 +8,10 @@ The microcontroller used for the homeworks is an [Arduino Uno R3](https://docs.a
 
 Each homework includes all the code and schematics used in solving the homework, as well as code documentation and pictures and videos showcasing the final result.
 
+Part of this course have also been two projects, that each have their own separate repo:
+- [Maze Escape](https://github.com/i2002/MazeEscape)
+- [Line follower](https://github.com/i2002/LineFollower)
+
 
 ## Contents
 
